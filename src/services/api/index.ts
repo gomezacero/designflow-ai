@@ -1,0 +1,43 @@
+/**
+ * API Services - Barrel export
+ * Re-exports all API functions for easy importing
+ */
+
+// Tasks API
+export {
+  getTasks,
+  getTaskById,
+  createTask,
+  updateTask,
+  deleteTask,
+} from './tasksApi';
+
+// Designers API
+export {
+  getDesigners,
+  getDesignerById,
+  createDesigner,
+  updateDesigner,
+  deleteDesigner,
+} from './designersApi';
+
+// Sprints API
+export {
+  getSprints,
+  getActiveSprint,
+  getSprintById,
+  createSprint,
+  updateSprint,
+  setActiveSprint,
+  deleteSprint,
+} from './sprintsApi';
+
+// Requesters API
+export {
+  getRequesters,
+  getRequestersFull,
+  createRequester,
+  createRequesters,
+  deleteRequester,
+} from './requestersApi';
+export type { Requester } from './requestersApi';
