@@ -3,7 +3,7 @@ import React from 'react';
 import { LayoutDashboard, Layers, Search, BarChart3, PlusCircle, Settings, User } from 'lucide-react';
 import { Button } from './Button';
 
-export type ViewType = 'dashboard' | 'data' | 'sprints' | 'search';
+export type ViewType = 'dashboard' | 'data' | 'sprints' | 'search' | 'profile';
 
 interface SidebarProps {
   onMagicBriefClick: () => void;
@@ -39,9 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onMagicBriefClick, onSettingsC
              // Handle clicks: Sprints/Search fallback to dashboard or do nothing if not implemented,
              // but user specifically asked for Data section so 'data' works.
              const handleClick = () => {
-                 if (item.id === 'sprints' || item.id === 'search') {
+                 if (item.id === 'search') {
                      // For now, keep them on dashboard or just don't switch
-                     // OR switch to dashboard to avoid empty screens
                      onNavigate('dashboard');
                  } else {
                      onNavigate(item.id as ViewType);
@@ -83,7 +82,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onMagicBriefClick, onSettingsC
                 <Settings size={18} />
                 <span>Settings</span>
             </button>
-            <button className="flex items-center gap-3 text-sm font-medium text-ios-secondary hover:text-ios-text transition-colors w-full px-2 py-2 mt-1">
+            <button 
+                onClick={() => onNavigate('profile')}
+                className={`flex items-center gap-3 text-sm font-medium transition-colors w-full px-2 py-2 mt-1 ${currentView === 'profile' ? 'text-blue-600 bg-blue-50 rounded-lg' : 'text-ios-secondary hover:text-ios-text'}`}
+            >
                 <User size={18} />
                 <span>My Profile</span>
             </button>

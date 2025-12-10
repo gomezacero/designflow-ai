@@ -1,6 +1,5 @@
-
 import React, { useState, useMemo } from 'react';
-import { Task, Status, TaskType, Designer, Sprint } from '../models';
+import { Task, Status, TaskType, Designer, Sprint, Priority } from '../models';
 import { TaskCard } from './TaskCard';
 import { TaskDetailModal } from './TaskDetailModal';
 import { Filter, List as ListIcon, Search, X, Calendar, User, Tag, Kanban, Archive, ChevronDown, ChevronUp } from 'lucide-react';
@@ -12,12 +11,23 @@ interface DashboardProps {
   designers: Designer[];
   requesters: string[];
   sprints: Sprint[];
+  activeSprint?: string; // Made optional to match usage
+  onTaskClick?: (task: Task) => void;
+  onTaskDrop?: (taskId: string, newStatus: Status) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ tasks, onUpdateTask, designers, requesters, sprints }) => {
-  // View State
-  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
+export const Dashboard: React.FC<DashboardProps> = ({
+  tasks,
+  activeSprint: activeSprintName, // Rename prop to avoid conflict with local variable
+  designers,
+  requesters, // Missing in previous destructuring
+  sprints, // Missing in previous destructuring
+  onUpdateTask, // Missing in previous destructuring
+  onTaskClick,
+  onTaskDrop,
+}) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
 
   // Filter State

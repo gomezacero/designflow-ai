@@ -2,6 +2,8 @@
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DataView } from './components/DataView';
+import { SprintsView } from './components/SprintsView';
+import { ProfileView } from './components/ProfileView';
 import { MagicBriefModal } from './components/MagicBriefModal';
 import { SettingsModal } from './components/SettingsModal';
 import { LoginScreen } from './components/LoginScreen';
@@ -11,7 +13,7 @@ import { Task } from './models';
 
 function App() {
   // Custom Hooks
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, login, user, updateProfile } = useAuth();
   const {
     currentView,
     setCurrentView,
@@ -88,6 +90,21 @@ function App() {
               designers={designers}
               requesters={requesters}
               sprints={sprints}
+              // Ideally we would lift state here to share task opening logic
+              // For now, Dashboard manages its own modal
+            />
+        )}
+        {currentView === 'sprints' && (
+            <SprintsView
+              sprints={sprints}
+              tasks={tasks}
+              // onTaskClick={() => {}} // Placeholder: Future implementation to open detail modal
+            />
+        )}
+        {currentView === 'profile' && (
+            <ProfileView
+              user={user}
+              onUpdateProfile={updateProfile}
             />
         )}
         {currentView === 'data' && (
