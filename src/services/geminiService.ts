@@ -14,7 +14,8 @@ export const generateStructuredBrief = async (rawText: string): Promise<MagicBri
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Use specific model version to avoid 404s on aliases
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
     // Construct a strong system prompt to enforce JSON structure
     const prompt = `
