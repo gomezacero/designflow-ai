@@ -32,6 +32,18 @@ interface UseAppStateReturn {
 
   // Refresh data
   refreshData: () => Promise<void>;
+  
+  // New handlers
+  handleCreateSprint: (sprint: Partial<Sprint>) => Promise<void>;
+  handleUpdateSprint: (id: string, updates: Partial<Sprint>) => Promise<void>;
+  handleDeleteSprint: (id: string) => Promise<void>;
+  
+  handleCreateDesigner: (designer: Partial<Designer>) => Promise<void>;
+  handleUpdateDesigner: (id: string, updates: Partial<Designer>) => Promise<void>;
+  handleDeleteDesigner: (id: string) => Promise<void>;
+  
+  handleCreateRequester: (name: string) => Promise<void>;
+  handleDeleteRequester: (name: string) => Promise<void>;
 }
 
 /**
@@ -214,6 +226,184 @@ export const useAppState = (): UseAppStateReturn => {
     },
     [useSupabase]
   );
+  
+  /**
+   * Handlers for Sprints
+   */
+  const handleCreateSprint = useCallback(
+    async (sprintData: Partial<Sprint>) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          const created = await api.createSprint(sprintData);
+          setSprints(prev => [created, ...prev]);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to create sprint';
+          setError(message);
+          console.error('Error creating sprint:', err);
+        }
+      } else {
+        const newSprint: Sprint = {
+            id: `s${Date.now()}`,
+            name: sprintData.name || 'New Sprint',
+            startDate: sprintData.startDate || '',
+            endDate: sprintData.endDate || '',
+            isActive: sprintData.isActive || false
+        };
+        setSprints(prev => [...prev, newSprint]);
+      }
+    },
+    [useSupabase]
+  );
+
+  const handleUpdateSprint = useCallback(
+    async (id: string, updates: Partial<Sprint>) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          if (updates.isActive) {
+            // Special handling for setting active sprint
+            const updated = await api.setActiveSprint(id);
+             // We need to refetch or manually update all sprints to ensure only one is active
+             setSprints(prev => prev.map(s => ({
+                 ...s,
+                 isActive: s.id === id
+             })));
+          } else {
+            const updated = await api.updateSprint(id, updates);
+            setSprints(prev => prev.map(s => (s.id === id ? updated : s)));
+          }
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to update sprint';
+          setError(message);
+          console.error('Error updating sprint:', err);
+        }
+      } else {
+         setSprints(prev => {
+             if (updates.isActive) {
+                 return prev.map(s => ({ ...s, isActive: s.id === id }));
+             }
+             return prev.map(s => (s.id === id ? { ...s, ...updates } : s));
+         });
+      }
+    },
+    [useSupabase]
+  );
+
+  const handleDeleteSprint = useCallback(
+    async (id: string) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          await api.deleteSprint(id);
+          setSprints(prev => prev.filter(s => s.id !== id));
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to delete sprint';
+            setError(message);
+            console.error('Error deleting sprint:', err);
+        }
+      } else {
+        setSprints(prev => prev.filter(s => s.id !== id));
+      }
+    },
+    [useSupabase]
+  );
+
+  /**
+   * Handlers for Designers
+   */
+  const handleCreateDesigner = useCallback(
+    async (designerData: Partial<Designer>) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          const created = await api.createDesigner(designerData);
+          setDesigners(prev => [...prev, created]);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to create designer');
+        }
+      } else {
+        const newDesigner = {
+            id: `d${Date.now()}`,
+            name: designerData.name || 'New Designer',
+            avatar: designerData.avatar || '',
+        } as Designer;
+        setDesigners(prev => [...prev, newDesigner]);
+      }
+    },
+    [useSupabase]
+  );
+  
+  const handleUpdateDesigner = useCallback(
+    async (id: string, updates: Partial<Designer>) => {
+        if(useSupabase) {
+            try {
+                const updated = await api.updateDesigner(id, updates);
+                setDesigners(prev => prev.map(d => d.id === id ? updated : d));
+            } catch(err) {
+                 setError(err instanceof Error ? err.message : 'Failed to update designer');
+            }
+        } else {
+            setDesigners(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+        }
+    },
+    [useSupabase]
+  );
+
+  const handleDeleteDesigner = useCallback(
+    async (id: string) => {
+      if (useSupabase) {
+        try {
+          await api.deleteDesigner(id);
+          setDesigners(prev => prev.filter(d => d.id !== id));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to delete designer');
+        }
+      } else {
+        setDesigners(prev => prev.filter(d => d.id !== id));
+      }
+    },
+    [useSupabase]
+  );
+
+  /**
+   * Handlers for Requesters
+   */
+  const handleCreateRequester = useCallback(
+    async (name: string) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          const createdName = await api.createRequester(name);
+          setRequesters(prev => {
+              if (prev.includes(createdName)) return prev;
+              return [...prev, createdName];
+          });
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to create requester');
+        }
+      } else {
+        setRequesters(prev => prev.includes(name) ? prev : [...prev, name]);
+      }
+    },
+    [useSupabase]
+  );
+
+  const handleDeleteRequester = useCallback(
+    async (name: string) => {
+      if (useSupabase) {
+        try {
+           await api.deleteRequester(name);
+           setRequesters(prev => prev.filter(r => r !== name));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to delete requester');
+        }
+      } else {
+        setRequesters(prev => prev.filter(r => r !== name));
+      }
+    },
+    [useSupabase]
+  );
 
   return {
     tasks,
@@ -229,5 +419,13 @@ export const useAppState = (): UseAppStateReturn => {
     handleCreateTask,
     handleUpdateTask,
     refreshData: fetchAllData,
+    handleCreateSprint,
+    handleUpdateSprint,
+    handleDeleteSprint,
+    handleCreateDesigner,
+    handleUpdateDesigner,
+    handleDeleteDesigner,
+    handleCreateRequester,
+    handleDeleteRequester,
   };
 };

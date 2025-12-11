@@ -12,7 +12,7 @@ import { Task } from './models';
 
 function App() {
   // Custom Hooks
-  const { isAuthenticated, isLoading, user, updateProfile, login, signup, logout } = useAuth();
+  const { isAuthenticated, isLoading, user, updateProfile, logout } = useAuth();
   const {
     currentView,
     setCurrentView,
@@ -32,11 +32,19 @@ function App() {
     requesters,
     sprints,
     activeSprint,
-    setDesigners,
-    setRequesters,
-    setSprints,
+
     handleCreateTask,
     handleUpdateTask,
+    // Sprint Handlers
+    handleCreateSprint,
+    handleUpdateSprint,
+    handleDeleteSprint,
+    // Designer Handlers
+    handleCreateDesigner,
+    handleDeleteDesigner,
+    // Requester Handlers
+    handleCreateRequester,
+    handleDeleteRequester,
   } = useAppState();
 
   // Wrap handleCreateTask to also close the modal
@@ -79,52 +87,52 @@ function App() {
 
       {/* Sidebar with Responsive Logic */}
       <div className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:static md:block`}>
-          <Sidebar
-            onMagicBriefClick={() => { openModal(); closeMobileMenu(); }}
-            onSettingsClick={() => { openSettings(); closeMobileMenu(); }}
-            currentView={currentView}
-            onNavigate={(view) => { setCurrentView(view); closeMobileMenu(); }}
-            onLogout={logout}
-          />
+        <Sidebar
+          onMagicBriefClick={() => { openModal(); closeMobileMenu(); }}
+          onSettingsClick={() => { openSettings(); closeMobileMenu(); }}
+          currentView={currentView}
+          onNavigate={(view) => { setCurrentView(view); closeMobileMenu(); }}
+          onLogout={logout}
+        />
       </div>
 
       {/* Overlay for mobile sidebar */}
       {isMobileMenuOpen && (
         <div
-            className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm md:hidden"
-            onClick={closeMobileMenu}
+          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm md:hidden"
+          onClick={closeMobileMenu}
         />
       )}
 
       {/* Main Content - Full Width Adaptable */}
       <main className="flex-1 min-w-0 transition-all duration-300 w-full h-screen overflow-hidden">
         {currentView === 'dashboard' && (
-            <Dashboard
-              tasks={tasks}
-              onUpdateTask={handleUpdateTask}
-              designers={designers}
-              requesters={requesters}
-              sprints={sprints}
-            />
+          <Dashboard
+            tasks={tasks}
+            onUpdateTask={handleUpdateTask}
+            designers={designers}
+            requesters={requesters}
+            sprints={sprints}
+          />
         )}
         {currentView === 'sprints' && (
-            <SprintsView
-              sprints={sprints}
-              tasks={tasks}
-            />
+          <SprintsView
+            sprints={sprints}
+            tasks={tasks}
+          />
         )}
         {currentView === 'profile' && user && (
-            <ProfileView
-              user={user}
-              onUpdateProfile={updateProfile}
-            />
+          <ProfileView
+            user={user}
+            onUpdateProfile={updateProfile}
+          />
         )}
         {currentView === 'data' && (
-            <DataView
-              tasks={tasks}
-              designers={designers}
-              requesters={requesters}
-            />
+          <DataView
+            tasks={tasks}
+            designers={designers}
+            requesters={requesters}
+          />
         )}
       </main>
 
@@ -143,9 +151,13 @@ function App() {
         designers={designers}
         requesters={requesters}
         sprints={sprints}
-        onUpdateDesigners={setDesigners}
-        onUpdateRequesters={setRequesters}
-        onUpdateSprints={setSprints}
+        onCreateSprint={handleCreateSprint}
+        onUpdateSprint={handleUpdateSprint}
+        onDeleteSprint={handleDeleteSprint}
+        onCreateDesigner={handleCreateDesigner}
+        onDeleteDesigner={handleDeleteDesigner}
+        onCreateRequester={handleCreateRequester}
+        onDeleteRequester={handleDeleteRequester}
       />
     </div>
   );
