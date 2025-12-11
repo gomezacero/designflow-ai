@@ -14,8 +14,8 @@ export const generateStructuredBrief = async (rawText: string): Promise<MagicBri
   }
 
   try {
-    // Switching to 'gemini-pro' for maximum stability and compatibility
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // User requested specific model: gemini-2.0-flash-lite
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
     // Construct a strong system prompt to enforce JSON structure
     const prompt = `
