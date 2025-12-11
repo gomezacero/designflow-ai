@@ -50,11 +50,42 @@ export const generateStructuredBrief = async (rawText: string): Promise<MagicBri
     // Clean up if Gemini wraps it in ```json ... ```
     const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
-    const data = JSON.parse(cleanedText) as MagicBriefResult;
-    return data;
+        const data = JSON.parse(cleanedText) as MagicBriefResult;
 
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to process with AI. Check your API Key or try again.");
-  }
-};
+        return data;
+
+    
+
+      } catch (error) {
+
+        console.error("Gemini API Error:", error);
+
+    
+
+        // DIAGNOSTIC: Check available models
+
+        try {
+
+          console.log("Attempting to list available models for this API Key...");
+
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+
+          const data = await response.json();
+
+          console.log("AVAILABLE MODELS:", data);
+
+        } catch (e) {
+
+          console.error("Could not list models:", e);
+
+        }
+
+    
+
+        throw new Error("Failed to process with AI. Check console for available models.");
+
+      }
+
+    };
+
+    
