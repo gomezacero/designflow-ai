@@ -20,18 +20,24 @@ export interface Database {
           id: string;
           name: string;
           avatar: string | null;
+          email: string | null;
+          user_id: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
           avatar?: string | null;
+          email?: string | null;
+          user_id?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
           avatar?: string | null;
+          email?: string | null;
+          user_id?: string | null;
           created_at?: string;
         };
         Relationships: [];

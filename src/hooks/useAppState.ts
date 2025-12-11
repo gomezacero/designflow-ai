@@ -32,16 +32,16 @@ interface UseAppStateReturn {
 
   // Refresh data
   refreshData: () => Promise<void>;
-  
+
   // New handlers
   handleCreateSprint: (sprint: Partial<Sprint>) => Promise<void>;
   handleUpdateSprint: (id: string, updates: Partial<Sprint>) => Promise<void>;
   handleDeleteSprint: (id: string) => Promise<void>;
-  
+
   handleCreateDesigner: (designer: Partial<Designer>) => Promise<void>;
   handleUpdateDesigner: (id: string, updates: Partial<Designer>) => Promise<void>;
   handleDeleteDesigner: (id: string) => Promise<void>;
-  
+
   handleCreateRequester: (name: string) => Promise<void>;
   handleDeleteRequester: (name: string) => Promise<void>;
 }
@@ -120,7 +120,7 @@ export const useAppState = (): UseAppStateReturn => {
         { event: 'UPDATE', schema: 'public', table: 'designers' },
         (payload) => {
           const updatedDesigner = payload.new as any; // Cast generic payload
-          
+
           // Map DB columns to App Model (snake_case to camelCase)
           const designerModel: Designer = {
             id: updatedDesigner.id,
@@ -202,10 +202,10 @@ export const useAppState = (): UseAppStateReturn => {
     async (taskId: string, updates: Partial<Task>) => {
       // Intelligent updates: Handle completion date automatically
       const smartUpdates = { ...updates };
-      
+
       if (updates.status === Status.DONE) {
         smartUpdates.completionDate = new Date().toISOString().split('T')[0];
-      } else if (updates.status && updates.status !== Status.DONE) {
+      } else if (updates.status) {
         // If moving out of Done, clear the date
         smartUpdates.completionDate = null as any; // Cast to any to satisfy Partial<Task> if strict null checks complain, but DB handles null
       }
@@ -226,7 +226,7 @@ export const useAppState = (): UseAppStateReturn => {
     },
     [useSupabase]
   );
-  
+
   /**
    * Handlers for Sprints
    */
@@ -244,11 +244,11 @@ export const useAppState = (): UseAppStateReturn => {
         }
       } else {
         const newSprint: Sprint = {
-            id: `s${Date.now()}`,
-            name: sprintData.name || 'New Sprint',
-            startDate: sprintData.startDate || '',
-            endDate: sprintData.endDate || '',
-            isActive: sprintData.isActive || false
+          id: `s${Date.now()}`,
+          name: sprintData.name || 'New Sprint',
+          startDate: sprintData.startDate || '',
+          endDate: sprintData.endDate || '',
+          isActive: sprintData.isActive || false
         };
         setSprints(prev => [...prev, newSprint]);
       }
@@ -263,12 +263,12 @@ export const useAppState = (): UseAppStateReturn => {
           setError(null);
           if (updates.isActive) {
             // Special handling for setting active sprint
-            const updated = await api.setActiveSprint(id);
-             // We need to refetch or manually update all sprints to ensure only one is active
-             setSprints(prev => prev.map(s => ({
-                 ...s,
-                 isActive: s.id === id
-             })));
+            await api.setActiveSprint(id);
+            // We need to refetch or manually update all sprints to ensure only one is active
+            setSprints(prev => prev.map(s => ({
+              ...s,
+              isActive: s.id === id
+            })));
           } else {
             const updated = await api.updateSprint(id, updates);
             setSprints(prev => prev.map(s => (s.id === id ? updated : s)));
@@ -279,12 +279,12 @@ export const useAppState = (): UseAppStateReturn => {
           console.error('Error updating sprint:', err);
         }
       } else {
-         setSprints(prev => {
-             if (updates.isActive) {
-                 return prev.map(s => ({ ...s, isActive: s.id === id }));
-             }
-             return prev.map(s => (s.id === id ? { ...s, ...updates } : s));
-         });
+        setSprints(prev => {
+          if (updates.isActive) {
+            return prev.map(s => ({ ...s, isActive: s.id === id }));
+          }
+          return prev.map(s => (s.id === id ? { ...s, ...updates } : s));
+        });
       }
     },
     [useSupabase]
@@ -299,8 +299,8 @@ export const useAppState = (): UseAppStateReturn => {
           setSprints(prev => prev.filter(s => s.id !== id));
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Failed to delete sprint';
-            setError(message);
-            console.error('Error deleting sprint:', err);
+          setError(message);
+          console.error('Error deleting sprint:', err);
         }
       } else {
         setSprints(prev => prev.filter(s => s.id !== id));
@@ -324,28 +324,28 @@ export const useAppState = (): UseAppStateReturn => {
         }
       } else {
         const newDesigner = {
-            id: `d${Date.now()}`,
-            name: designerData.name || 'New Designer',
-            avatar: designerData.avatar || '',
+          id: `d${Date.now()}`,
+          name: designerData.name || 'New Designer',
+          avatar: designerData.avatar || '',
         } as Designer;
         setDesigners(prev => [...prev, newDesigner]);
       }
     },
     [useSupabase]
   );
-  
+
   const handleUpdateDesigner = useCallback(
     async (id: string, updates: Partial<Designer>) => {
-        if(useSupabase) {
-            try {
-                const updated = await api.updateDesigner(id, updates);
-                setDesigners(prev => prev.map(d => d.id === id ? updated : d));
-            } catch(err) {
-                 setError(err instanceof Error ? err.message : 'Failed to update designer');
-            }
-        } else {
-            setDesigners(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+      if (useSupabase) {
+        try {
+          const updated = await api.updateDesigner(id, updates);
+          setDesigners(prev => prev.map(d => d.id === id ? updated : d));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to update designer');
         }
+      } else {
+        setDesigners(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+      }
     },
     [useSupabase]
   );
@@ -376,8 +376,8 @@ export const useAppState = (): UseAppStateReturn => {
           setError(null);
           const createdName = await api.createRequester(name);
           setRequesters(prev => {
-              if (prev.includes(createdName)) return prev;
-              return [...prev, createdName];
+            if (prev.includes(createdName)) return prev;
+            return [...prev, createdName];
           });
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to create requester');
@@ -393,8 +393,8 @@ export const useAppState = (): UseAppStateReturn => {
     async (name: string) => {
       if (useSupabase) {
         try {
-           await api.deleteRequester(name);
-           setRequesters(prev => prev.filter(r => r !== name));
+          await api.deleteRequester(name);
+          setRequesters(prev => prev.filter(r => r !== name));
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to delete requester');
         }

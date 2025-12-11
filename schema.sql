@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS public.designers (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name TEXT NOT NULL,
     avatar TEXT,
+    email TEXT,
+    user_id UUID REFERENCES auth.users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

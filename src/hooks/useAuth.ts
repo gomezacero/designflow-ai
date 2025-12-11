@@ -39,24 +39,25 @@ export const useAuth = (): UseAuthReturn => {
         .single();
 
       if (data) {
+        const profile = data as any;
         setUser({
-          id: data.id,
+          id: profile.id,
           auth_id: userId,
-          name: data.name,
-          email: data.email || email || '',
-          avatar: data.avatar || '',
-          role: 'Designer', // Default role for now, could be a DB column
-          bio: 'Ready to design.' // Default bio
+          name: profile.name,
+          email: profile.email || email || '',
+          avatar: profile.avatar || '',
+          role: 'Designer',
+          bio: 'Ready to design.'
         });
         setIsAuthenticated(true);
       } else if (error && email) {
         // Fallback if trigger hasn't run yet or failed
         console.warn('Profile not found, using basic auth info', error);
         setUser({
-          id: 'temp', 
+          id: 'temp',
           auth_id: userId,
-          name: email.split('@')[0],
-          email: email,
+          name: (email ? email.split('@')[0] : 'User') || 'User',
+          email: email || '',
           avatar: '',
           role: 'New User',
           bio: ''
@@ -103,7 +104,7 @@ export const useAuth = (): UseAuthReturn => {
   }, []);
 
   const signup = useCallback(async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -112,7 +113,30 @@ export const useAuth = (): UseAuthReturn => {
         },
       },
     });
-    return { error };
+
+    if (error) return { error };
+
+    if (authData.user) {
+      // Robustness: Check if profile exists (in case trigger worked)
+      const { data: existingProfile } = await supabase
+        .from('designers')
+        .select('id')
+        .eq('user_id', authData.user.id)
+        .single();
+
+      if (!existingProfile) {
+        // If not detailed, insert it manually
+        const name = fullName || email.split('@')[0];
+        await supabase.from('designers').insert({
+          user_id: authData.user.id,
+          name: name,
+          email: email,
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`, // Generate random avatar
+        } as any);
+      }
+    }
+
+    return { error: null };
   }, []);
 
   const logout = useCallback(async () => {
@@ -123,7 +147,7 @@ export const useAuth = (): UseAuthReturn => {
 
   const updateProfile = useCallback(async (updates: Partial<User>) => {
     if (!user?.auth_id) return;
-    
+
     // Update local state optimistic
     setUser(prev => prev ? { ...prev, ...updates } : null);
 
@@ -136,7 +160,7 @@ export const useAuth = (): UseAuthReturn => {
         // Add other fields to DB schema if needed
       })
       .eq('user_id', user.auth_id);
-    
+
     if (error) console.error('Failed to update profile:', error);
   }, [user]);
 
