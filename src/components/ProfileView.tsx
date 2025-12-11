@@ -145,10 +145,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ user, onUpdateProfile 
                         </label>
                         <input
                             type="email"
-                            disabled={!isEditing}
+                            disabled={true}
                             value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                            // Email cannot be changed
+                            className="w-full bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 cursor-not-allowed outline-none select-none"
                         />
                     </div>
 

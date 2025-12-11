@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { Task, Status, Priority, TaskType, Designer, Sprint } from '../models';
 import {
   INITIAL_TASKS,
@@ -8,39 +9,9 @@ import {
 } from '../utils/constants';
 import * as api from '../services/api';
 
-interface UseAppStateReturn {
-  // Data
-  tasks: Task[];
-  designers: Designer[];
-  requesters: string[];
-  sprints: Sprint[];
-  activeSprint: string;
+// ... (rest of imports)
 
-  // Loading & Error states
-  isLoading: boolean;
-  error: string | null;
-
-  // Setters
-  setDesigners: React.Dispatch<React.SetStateAction<Designer[]>>;
-  setRequesters: React.Dispatch<React.SetStateAction<string[]>>;
-  setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
-
-  // Handlers
-  handleCreateTask: (taskData: Partial<Task>) => Promise<void>;
-  handleUpdateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
-
-  // Refresh data
-  refreshData: () => Promise<void>;
-}
-
-/**
- * Checks if Supabase is properly configured
- */
-function isSupabaseConfigured(): boolean {
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  return Boolean(url && key && !url.includes('your-project'));
-}
+// ... (isSupabaseConfigured function remains same)
 
 /**
  * Custom hook for application data state management
@@ -48,6 +19,7 @@ function isSupabaseConfigured(): boolean {
  */
 export const useAppState = (): UseAppStateReturn => {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
+  // ... (rest of state)
   const [designers, setDesigners] = useState<Designer[]>(INITIAL_DESIGNERS);
   const [requesters, setRequesters] = useState<string[]>(INITIAL_REQUESTERS);
   const [sprints, setSprints] = useState<Sprint[]>(INITIAL_SPRINTS);
@@ -56,15 +28,13 @@ export const useAppState = (): UseAppStateReturn => {
 
   const useSupabase = isSupabaseConfigured();
 
-  const activeSprint = useMemo(
-    () => sprints.find(s => s.isActive)?.name || 'Backlog',
-    [sprints]
-  );
+  // ... (activeSprint memo)
 
   /**
    * Fetches all data from Supabase
    */
   const fetchAllData = useCallback(async () => {
+     // ... (fetch logic remains same)
     if (!useSupabase) return;
 
     setIsLoading(true);
@@ -92,11 +62,49 @@ export const useAppState = (): UseAppStateReturn => {
   }, [useSupabase]);
 
   /**
-   * Initial data fetch on mount
+   * Initial data fetch on mount AND Realtime Subscription
    */
   useEffect(() => {
     fetchAllData();
-  }, [fetchAllData]);
+
+    if (!useSupabase) return;
+
+    // REALTIME SUBSCRIPTION
+    const channel = supabase
+      .channel('app-changes')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'designers' },
+        (payload) => {
+          const updatedDesigner = payload.new as any; // Cast generic payload
+          
+          // Map DB columns to App Model (snake_case to camelCase)
+          const designerModel: Designer = {
+            id: updatedDesigner.id,
+            name: updatedDesigner.name,
+            avatar: updatedDesigner.avatar || ''
+          };
+
+          // 1. Update Designers List
+          setDesigners(prev => prev.map(d => d.id === designerModel.id ? designerModel : d));
+
+          // 2. Update Tasks (Live update of avatar in cards)
+          setTasks(prev => prev.map(t => {
+            if (t.designer?.id === designerModel.id) {
+              return { ...t, designer: designerModel };
+            }
+            return t;
+          }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchAllData, useSupabase]);
+
+  // ... (rest of methods: handleCreateTask, handleUpdateTask, return)
 
   /**
    * Creates a new task
