@@ -9,9 +9,39 @@ import {
 } from '../utils/constants';
 import * as api from '../services/api';
 
-// ... (rest of imports)
+interface UseAppStateReturn {
+  // Data
+  tasks: Task[];
+  designers: Designer[];
+  requesters: string[];
+  sprints: Sprint[];
+  activeSprint: string;
 
-// ... (isSupabaseConfigured function remains same)
+  // Loading & Error states
+  isLoading: boolean;
+  error: string | null;
+
+  // Setters
+  setDesigners: React.Dispatch<React.SetStateAction<Designer[]>>;
+  setRequesters: React.Dispatch<React.SetStateAction<string[]>>;
+  setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
+
+  // Handlers
+  handleCreateTask: (taskData: Partial<Task>) => Promise<void>;
+  handleUpdateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
+
+  // Refresh data
+  refreshData: () => Promise<void>;
+}
+
+/**
+ * Checks if Supabase is properly configured
+ */
+function isSupabaseConfigured(): boolean {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  return Boolean(url && key && !url.includes('your-project'));
+}
 
 /**
  * Custom hook for application data state management
@@ -19,7 +49,6 @@ import * as api from '../services/api';
  */
 export const useAppState = (): UseAppStateReturn => {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
-  // ... (rest of state)
   const [designers, setDesigners] = useState<Designer[]>(INITIAL_DESIGNERS);
   const [requesters, setRequesters] = useState<string[]>(INITIAL_REQUESTERS);
   const [sprints, setSprints] = useState<Sprint[]>(INITIAL_SPRINTS);
@@ -28,13 +57,15 @@ export const useAppState = (): UseAppStateReturn => {
 
   const useSupabase = isSupabaseConfigured();
 
-  // ... (activeSprint memo)
+  const activeSprint = useMemo(
+    () => sprints.find(s => s.isActive)?.name || 'Backlog',
+    [sprints]
+  );
 
   /**
    * Fetches all data from Supabase
    */
   const fetchAllData = useCallback(async () => {
-     // ... (fetch logic remains same)
     if (!useSupabase) return;
 
     setIsLoading(true);
@@ -103,8 +134,6 @@ export const useAppState = (): UseAppStateReturn => {
       supabase.removeChannel(channel);
     };
   }, [fetchAllData, useSupabase]);
-
-  // ... (rest of methods: handleCreateTask, handleUpdateTask, return)
 
   /**
    * Creates a new task
