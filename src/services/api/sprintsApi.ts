@@ -36,6 +36,7 @@ export async function getSprints(): Promise<Sprint[]> {
   const { data, error } = await supabase
     .from('sprints')
     .select('*')
+    .eq('is_deleted', false)
     .order('start_date', { ascending: false });
 
   if (error) {
@@ -155,7 +156,46 @@ export async function setActiveSprint(id: string): Promise<Sprint> {
 }
 
 /**
- * Deletes a sprint
+ * Soft deletes a sprint
+ * @param id - Sprint ID
+ * @param userId - User ID performing the deletion
+ */
+export async function softDeleteSprint(id: string, userId: string): Promise<void> {
+  const { error } = await supabase
+    .from('sprints')
+    .update({
+      is_deleted: true,
+      deleted_at: new Date().toISOString(),
+      deleted_by: userId
+    } as never)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Failed to delete sprint: ${error.message}`);
+  }
+}
+
+/**
+ * Restores a soft-deleted sprint
+ * @param id - Sprint ID
+ */
+export async function restoreSprint(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('sprints')
+    .update({
+      is_deleted: false,
+      deleted_at: null,
+      deleted_by: null
+    } as never)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Failed to restore sprint: ${error.message}`);
+  }
+}
+
+/**
+ * Permanently deletes a sprint (Admin only)
  * @param id - Sprint ID
  */
 export async function deleteSprint(id: string): Promise<void> {

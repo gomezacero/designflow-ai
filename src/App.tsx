@@ -39,13 +39,25 @@ function App() {
     handleCreateSprint,
     handleUpdateSprint,
     handleDeleteSprint,
+    handleRestoreSprint,
     // Designer Handlers
     handleCreateDesigner,
     handleDeleteDesigner,
     // Requester Handlers
     handleCreateRequester,
     handleDeleteRequester,
+    handleDeleteTask,
+    handleRestoreTask,
   } = useAppState();
+
+  // Wrappers to inject user ID
+  const onDeleteSprint = (id: string) => {
+    if (user?.id) handleDeleteSprint(id, user.id);
+  };
+
+  const onDeleteTask = (id: string) => {
+    if (user?.id) handleDeleteTask(id, user.id);
+  };
 
   // Wrap handleCreateTask to also close the modal
   const onCreateTask = (taskData: Partial<Task>) => {
@@ -119,6 +131,8 @@ function App() {
           <SprintsView
             sprints={sprints}
             tasks={tasks}
+            onDeleteSprint={onDeleteSprint}
+            onDeleteTask={onDeleteTask}
           />
         )}
         {currentView === 'profile' && user && (
@@ -153,11 +167,14 @@ function App() {
         sprints={sprints}
         onCreateSprint={handleCreateSprint}
         onUpdateSprint={handleUpdateSprint}
-        onDeleteSprint={handleDeleteSprint}
+        onDeleteSprint={onDeleteSprint}
         onCreateDesigner={handleCreateDesigner}
         onDeleteDesigner={handleDeleteDesigner}
         onCreateRequester={handleCreateRequester}
         onDeleteRequester={handleDeleteRequester}
+        tasks={tasks}
+        onRestoreSprint={handleRestoreSprint}
+        onRestoreTask={handleRestoreTask}
       />
     </div>
   );

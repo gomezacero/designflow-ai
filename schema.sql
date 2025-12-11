@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS public.sprints (
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     is_active BOOLEAN DEFAULT false,
+    is_deleted BOOLEAN DEFAULT false,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    deleted_by TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -47,6 +50,10 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     reference_links TEXT[] DEFAULT '{}',
     delivery_link TEXT,
     completion_date DATE,
+    completion_date DATE,
+    is_deleted BOOLEAN DEFAULT false,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    deleted_by TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

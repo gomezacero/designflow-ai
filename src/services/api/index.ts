@@ -10,6 +10,8 @@ export {
   createTask,
   updateTask,
   deleteTask,
+  softDeleteTask,
+  restoreTask,
 } from './tasksApi';
 
 // Designers API
@@ -30,6 +32,8 @@ export {
   updateSprint,
   setActiveSprint,
   deleteSprint,
+  softDeleteSprint,
+  restoreSprint,
 } from './sprintsApi';
 
 // Requesters API

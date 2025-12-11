@@ -31,6 +31,9 @@ export interface Sprint {
   startDate: string;
   endDate: string;
   isActive: boolean;
+  isDeleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: string;
 }
 
 export interface Task {
@@ -55,6 +58,10 @@ export interface Task {
   // Delivery Fields
   deliveryLink?: string;      // Link de entrega final
   completionDate?: string;    // Fecha real de entrega
+
+  isDeleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: string;
 }
 
 // Result structure from Gemini

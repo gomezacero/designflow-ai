@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { X, Users, Calendar, Plus, Trash2, UserPlus } from 'lucide-react';
-import { Designer, Sprint } from '../models';
+import { X, Users, Calendar, Plus, Trash2, UserPlus, Archive, RotateCcw } from 'lucide-react';
+import { Designer, Sprint, Task } from '../models';
 import { Button } from './Button';
 import { openDatePicker } from '../utils';
 
@@ -12,26 +12,31 @@ interface SettingsModalProps {
     designers: Designer[];
     requesters: string[];
     sprints: Sprint[];
+    tasks: Task[];
 
     // New handlers
     onCreateSprint: (sprint: Partial<Sprint>) => void;
     onUpdateSprint: (id: string, updates: Partial<Sprint>) => void;
     onDeleteSprint: (id: string) => void;
+    onRestoreSprint: (id: string) => void;
 
     onCreateDesigner: (designer: Partial<Designer>) => void;
     onDeleteDesigner: (id: string) => void;
 
     onCreateRequester: (name: string) => void;
     onDeleteRequester: (name: string) => void;
+
+    onRestoreTask: (id: string) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
-    isOpen, onClose, designers, requesters, sprints,
-    onCreateSprint, onUpdateSprint, onDeleteSprint,
+    isOpen, onClose, designers, requesters, sprints, tasks,
+    onCreateSprint, onUpdateSprint, onDeleteSprint, onRestoreSprint,
     onCreateDesigner, onDeleteDesigner,
-    onCreateRequester, onDeleteRequester
+    onCreateRequester, onDeleteRequester,
+    onRestoreTask
 }) => {
-    const [activeTab, setActiveTab] = useState<'team' | 'sprints'>('team');
+    const [activeTab, setActiveTab] = useState<'team' | 'sprints' | 'deleted'>('team');
 
     // Temp states for inputs
     const [newDesignerName, setNewDesignerName] = useState('');
@@ -118,6 +123,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         className={`pb-3 px-2 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'sprints' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
                     >
                         <Calendar size={18} /> Sprint Configuration
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('deleted')}
+                        className={`pb-3 px-2 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'deleted' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                    >
+                        <Archive size={18} /> Deleted Items
                     </button>
                 </div>
 
@@ -272,6 +283,68 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'deleted' && (
+                        <div className="space-y-6">
+                            {/* Deleted Sprints */}
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                                <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <Archive size={18} className="text-gray-500" /> Deleted Sprints
+                                </h3>
+                                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                                    {sprints.filter(s => s.isDeleted).length > 0 ? (
+                                        sprints.filter(s => s.isDeleted).map(sprint => (
+                                            <div key={sprint.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-sm text-gray-900">{sprint.name}</span>
+                                                    <span className="text-xs text-gray-500">{sprint.startDate} - {sprint.endDate}</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => onRestoreSprint(sprint.id)}
+                                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 shadow-sm rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <RotateCcw size={14} /> Restore
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-400 italic">No deleted sprints.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Deleted Tasks */}
+                            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                                <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <Trash2 size={18} className="text-red-500" /> Deleted Tasks
+                                </h3>
+                                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                    {tasks.filter(t => t.isDeleted).length > 0 ? (
+                                        tasks.filter(t => t.isDeleted).map(task => (
+                                            <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-sm text-gray-900 line-clamp-1">{task.title}</span>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                        <span>{task.sprint || 'No Sprint'}</span>
+                                                        <span>•</span>
+                                                        <span>{task.designer?.name || 'Unassigned'}</span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => onRestoreTask(task.id)}
+                                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 shadow-sm rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <RotateCcw size={14} /> Restore
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-gray-400 italic">No deleted tasks.</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}

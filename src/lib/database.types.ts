@@ -49,6 +49,10 @@ export interface Database {
           start_date: string;
           end_date: string;
           is_active: boolean;
+
+          is_deleted: boolean;
+          deleted_at: string | null;
+          deleted_by: string | null;
           created_at: string;
         };
         Insert: {
@@ -58,6 +62,9 @@ export interface Database {
           end_date: string;
           is_active?: boolean;
           created_at?: string;
+          is_deleted?: boolean;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
         };
         Update: {
           id?: string;
@@ -66,6 +73,9 @@ export interface Database {
           end_date?: string;
           is_active?: boolean;
           created_at?: string;
+          is_deleted?: boolean;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
         };
         Relationships: [];
       };
@@ -108,6 +118,9 @@ export interface Database {
           completion_date: string | null;
           created_at: string;
           updated_at: string;
+          is_deleted: boolean;
+          deleted_at: string | null;
+          deleted_by: string | null;
         };
         Insert: {
           id?: string;
@@ -128,6 +141,9 @@ export interface Database {
           delivery_link?: string | null;
           completion_date?: string | null;
           created_at?: string;
+          is_deleted?: boolean;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -149,6 +165,9 @@ export interface Database {
           delivery_link?: string | null;
           completion_date?: string | null;
           created_at?: string;
+          is_deleted?: boolean;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
           updated_at?: string;
         };
         Relationships: [

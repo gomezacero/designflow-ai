@@ -35,8 +35,14 @@ interface UseAppStateReturn {
 
   // New handlers
   handleCreateSprint: (sprint: Partial<Sprint>) => Promise<void>;
+
   handleUpdateSprint: (id: string, updates: Partial<Sprint>) => Promise<void>;
-  handleDeleteSprint: (id: string) => Promise<void>;
+  handleDeleteSprint: (id: string, userId: string) => Promise<void>;
+  handleRestoreSprint: (id: string) => Promise<void>;
+
+
+  handleDeleteTask: (taskId: string, userId: string) => Promise<void>;
+  handleRestoreTask: (taskId: string) => Promise<void>;
 
   handleCreateDesigner: (designer: Partial<Designer>) => Promise<void>;
   handleUpdateDesigner: (id: string, updates: Partial<Designer>) => Promise<void>;
@@ -291,11 +297,11 @@ export const useAppState = (): UseAppStateReturn => {
   );
 
   const handleDeleteSprint = useCallback(
-    async (id: string) => {
+    async (id: string, userId: string) => {
       if (useSupabase) {
         try {
           setError(null);
-          await api.deleteSprint(id);
+          await api.softDeleteSprint(id, userId);
           setSprints(prev => prev.filter(s => s.id !== id));
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Failed to delete sprint';
@@ -307,6 +313,58 @@ export const useAppState = (): UseAppStateReturn => {
       }
     },
     [useSupabase]
+  );
+
+  const handleRestoreSprint = useCallback(
+    async (id: string) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          await api.restoreSprint(id);
+          // We need to re-fetch sprints to get the restored one back, or we could optimistically add it back if we had the data.
+          // For simplicity, let's just refresh data
+          await fetchAllData();
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to restore sprint';
+          setError(message);
+        }
+      }
+    },
+    [useSupabase, fetchAllData]
+  );
+
+  const handleDeleteTask = useCallback(
+    async (taskId: string, userId: string) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          await api.softDeleteTask(taskId, userId);
+          setTasks(prev => prev.filter(t => t.id !== taskId));
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to delete task';
+          setError(message);
+        }
+      } else {
+        setTasks(prev => prev.filter(t => t.id !== taskId));
+      }
+    },
+    [useSupabase]
+  );
+
+  const handleRestoreTask = useCallback(
+    async (taskId: string) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          await api.restoreTask(taskId);
+          await fetchAllData();
+        } catch (err) {
+          const message = err instanceof Error ? err.message : 'Failed to restore task';
+          setError(message);
+        }
+      }
+    },
+    [useSupabase, fetchAllData]
   );
 
   /**
@@ -422,6 +480,9 @@ export const useAppState = (): UseAppStateReturn => {
     handleCreateSprint,
     handleUpdateSprint,
     handleDeleteSprint,
+    handleRestoreSprint,
+    handleDeleteTask,
+    handleRestoreTask,
     handleCreateDesigner,
     handleUpdateDesigner,
     handleDeleteDesigner,

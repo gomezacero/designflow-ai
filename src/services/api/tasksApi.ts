@@ -73,6 +73,7 @@ export async function getTasks(): Promise<Task[]> {
   const { data, error } = await supabase
     .from('tasks')
     .select('*, designer:designers(*)')
+    .eq('is_deleted', false)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -167,7 +168,46 @@ export async function updateTask(id: string, updates: Partial<Task>): Promise<Ta
 }
 
 /**
- * Deletes a task
+ * Soft deletes a task
+ * @param id - Task ID
+ * @param userId - User ID performing the deletion
+ */
+export async function softDeleteTask(id: string, userId: string): Promise<void> {
+  const { error } = await supabase
+    .from('tasks')
+    .update({
+      is_deleted: true,
+      deleted_at: new Date().toISOString(),
+      deleted_by: userId
+    } as never)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Failed to delete task: ${error.message}`);
+  }
+}
+
+/**
+ * Restores a soft-deleted task
+ * @param id - Task ID
+ */
+export async function restoreTask(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('tasks')
+    .update({
+      is_deleted: false,
+      deleted_at: null,
+      deleted_by: null
+    } as never)
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Failed to restore task: ${error.message}`);
+  }
+}
+
+/**
+ * Permanently deletes a task (Admin only)
  * @param id - Task ID
  */
 export async function deleteTask(id: string): Promise<void> {
