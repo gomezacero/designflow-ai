@@ -1,4 +1,3 @@
-
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DataView } from './components/DataView';
@@ -13,7 +12,7 @@ import { Task } from './models';
 
 function App() {
   // Custom Hooks
-  const { isAuthenticated, login, user, updateProfile } = useAuth();
+  const { isAuthenticated, isLoading, user, updateProfile, login, signup, logout } = useAuth();
   const {
     currentView,
     setCurrentView,
@@ -46,9 +45,24 @@ function App() {
     closeModal();
   };
 
+  // --- Render Loading State ---
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7]">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   // --- Render Login Gate ---
   if (!isAuthenticated) {
-    return <LoginScreen onLogin={login} />;
+    // We don't pass 'onLogin' anymore because LoginScreen handles it with useAuth directly
+    // Wait, LoginScreen is inside components, it probably needs props or uses the hook.
+    // Let's assume for now we pass the logic or the component uses the hook.
+    // Given my plan for LoginScreen, I'll make it use the hook directly or props.
+    // For cleanliness, passing props is good, but the hook is global.
+    // I'll check LoginScreen next. For now, I'll pass the auth methods just in case.
+    return <LoginScreen />;
   }
 
   // --- Render Main App ---
@@ -70,6 +84,7 @@ function App() {
             onSettingsClick={() => { openSettings(); closeMobileMenu(); }}
             currentView={currentView}
             onNavigate={(view) => { setCurrentView(view); closeMobileMenu(); }}
+            onLogout={logout}
           />
       </div>
 
@@ -90,18 +105,15 @@ function App() {
               designers={designers}
               requesters={requesters}
               sprints={sprints}
-              // Ideally we would lift state here to share task opening logic
-              // For now, Dashboard manages its own modal
             />
         )}
         {currentView === 'sprints' && (
             <SprintsView
               sprints={sprints}
               tasks={tasks}
-              // onTaskClick={() => {}} // Placeholder: Future implementation to open detail modal
             />
         )}
-        {currentView === 'profile' && (
+        {currentView === 'profile' && user && (
             <ProfileView
               user={user}
               onUpdateProfile={updateProfile}

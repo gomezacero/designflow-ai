@@ -1,7 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 
 export interface User {
   id: string;
+  auth_id?: string;
   name: string;
   email: string;
   avatar: string;
@@ -11,44 +13,139 @@ export interface User {
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
-  user: User;
-  login: () => void;
-  logout: () => void;
-  updateProfile: (updates: Partial<User>) => void;
+  isLoading: boolean;
+  user: User | null;
+  login: (email: string, password: string) => Promise<{ error: any }>;
+  signup: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  logout: () => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
 }
 
-const DEFAULT_USER: User = {
-  id: 'u1',
-  name: 'Santiago Admin',
-  email: 'santiago@designflow.ai',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  role: 'Product Manager',
-  bio: 'Leading the design revolution with AI-powered workflows.',
-};
-
 /**
- * Custom hook for authentication state management
+ * Custom hook for REAL Supabase authentication
  */
 export const useAuth = (): UseAuthReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User>(DEFAULT_USER);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback(() => {
-    setIsAuthenticated(true);
+  // Fetch the public profile from the 'designers' table
+  const fetchProfile = async (userId: string, email?: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('designers')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (data) {
+        setUser({
+          id: data.id,
+          auth_id: userId,
+          name: data.name,
+          email: data.email || email || '',
+          avatar: data.avatar || '',
+          role: 'Designer', // Default role for now, could be a DB column
+          bio: 'Ready to design.' // Default bio
+        });
+        setIsAuthenticated(true);
+      } else if (error && email) {
+        // Fallback if trigger hasn't run yet or failed
+        console.warn('Profile not found, using basic auth info', error);
+        setUser({
+          id: 'temp', 
+          auth_id: userId,
+          name: email.split('@')[0],
+          email: email,
+          avatar: '',
+          role: 'New User',
+          bio: ''
+        });
+        setIsAuthenticated(true);
+      }
+    } catch (e) {
+      console.error('Error loading profile:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // 1. Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchProfile(session.user.id, session.user.email);
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    // 2. Listen for changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        // Only fetch if we don't have the user or it's a different user
+        fetchProfile(session.user.id, session.user.email);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const logout = useCallback(() => {
+  const login = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return { error };
+  }, []);
+
+  const signup = useCallback(async (email: string, password: string, fullName: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+    return { error };
+  }, []);
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
+    setUser(null);
   }, []);
 
-  const updateProfile = useCallback((updates: Partial<User>) => {
-    setUser(prev => ({ ...prev, ...updates }));
-  }, []);
+  const updateProfile = useCallback(async (updates: Partial<User>) => {
+    if (!user?.auth_id) return;
+    
+    // Update local state optimistic
+    setUser(prev => prev ? { ...prev, ...updates } : null);
+
+    // Update DB
+    const { error } = await supabase
+      .from('designers')
+      .update({
+        name: updates.name,
+        avatar: updates.avatar,
+        // Add other fields to DB schema if needed
+      })
+      .eq('user_id', user.auth_id);
+    
+    if (error) console.error('Failed to update profile:', error);
+  }, [user]);
 
   return {
     isAuthenticated,
+    isLoading,
     user,
     login,
+    signup,
     logout,
     updateProfile,
   };

@@ -151,10 +151,20 @@ export const useAppState = (): UseAppStateReturn => {
    */
   const handleUpdateTask = useCallback(
     async (taskId: string, updates: Partial<Task>) => {
+      // Intelligent updates: Handle completion date automatically
+      const smartUpdates = { ...updates };
+      
+      if (updates.status === Status.DONE) {
+        smartUpdates.completionDate = new Date().toISOString().split('T')[0];
+      } else if (updates.status && updates.status !== Status.DONE) {
+        // If moving out of Done, clear the date
+        smartUpdates.completionDate = null as any; // Cast to any to satisfy Partial<Task> if strict null checks complain, but DB handles null
+      }
+
       if (useSupabase) {
         try {
           setError(null);
-          const updated = await api.updateTask(taskId, updates);
+          const updated = await api.updateTask(taskId, smartUpdates);
           setTasks(prev => prev.map(t => (t.id === taskId ? updated : t)));
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Failed to update task';
@@ -162,7 +172,7 @@ export const useAppState = (): UseAppStateReturn => {
           console.error('Error updating task:', err);
         }
       } else {
-        setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, ...updates } : t)));
+        setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, ...smartUpdates } : t)));
       }
     },
     [useSupabase]

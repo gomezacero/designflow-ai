@@ -68,7 +68,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
       {/* Footer */}
       <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 mt-1">
         <div className="flex items-center gap-2">
-            {task.designer ? (
+            {task.designer && task.designer.avatar ? (
                 <img
                     src={task.designer.avatar}
                     alt={task.designer.name}
@@ -76,8 +76,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
                     title={task.designer.name}
                 />
             ) : (
-                <div className="w-6 h-6 rounded-full border border-white bg-gray-100 flex items-center justify-center text-gray-400 text-[10px] font-bold">
-                    ?
+                <div 
+                    className="w-6 h-6 rounded-full border border-white bg-gray-100 flex items-center justify-center text-gray-400 text-[10px] font-bold"
+                    title={task.designer?.name || 'Unassigned'}
+                >
+                    {task.designer ? task.designer.name.charAt(0).toUpperCase() : '?'}
                 </div>
             )}
              <div className="flex gap-1 text-gray-300 ml-1">

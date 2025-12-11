@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, Layers, Search, BarChart3, PlusCircle, Settings, User } from 'lucide-react';
+import { LayoutDashboard, Layers, Search, BarChart3, PlusCircle, Settings, User, LogOut } from 'lucide-react';
 import { Button } from './Button';
 
 export type ViewType = 'dashboard' | 'data' | 'sprints' | 'search' | 'profile';
@@ -10,9 +10,10 @@ interface SidebarProps {
   onSettingsClick: () => void;
   currentView: ViewType;
   onNavigate: (view: ViewType) => void;
+  onLogout: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onMagicBriefClick, onSettingsClick, currentView, onNavigate }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onMagicBriefClick, onSettingsClick, currentView, onNavigate, onLogout }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'sprints', icon: Layers, label: 'Sprints' }, // Placeholder for now
@@ -88,6 +89,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onMagicBriefClick, onSettingsC
             >
                 <User size={18} />
                 <span>My Profile</span>
+            </button>
+
+            <button 
+                onClick={onLogout}
+                className="flex items-center gap-3 text-sm font-medium text-ios-secondary hover:text-red-600 hover:bg-red-50 transition-colors w-full px-2 py-2 mt-1 rounded-lg group"
+            >
+                <LogOut size={18} className="group-hover:text-red-600 transition-colors" />
+                <span>Log out</span>
             </button>
         </div>
       </div>

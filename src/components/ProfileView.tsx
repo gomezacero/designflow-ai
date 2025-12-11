@@ -66,8 +66,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ user, onUpdateProfile 
         <div className="md:col-span-1">
             <div className="bg-white rounded-[24px] shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center">
                 <div className="relative group mb-4">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                        <img src={formData.avatar} alt={formData.name} className="w-full h-full object-cover" />
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100 flex items-center justify-center">
+                        {formData.avatar ? (
+                            <img src={formData.avatar} alt={formData.name} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="text-4xl font-bold text-gray-300 select-none">
+                                {formData.name ? formData.name.charAt(0).toUpperCase() : <UserIcon size={48} />}
+                            </div>
+                        )}
                     </div>
                     
                     {/* Upload Overlay */}
