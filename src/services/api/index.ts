@@ -6,6 +6,7 @@
 // Tasks API
 export {
   getTasks,
+  getDeletedTasks,
   getTaskById,
   createTask,
   updateTask,
@@ -26,6 +27,7 @@ export {
 // Sprints API
 export {
   getSprints,
+  getDeletedSprints,
   getActiveSprint,
   getSprintById,
   createSprint,

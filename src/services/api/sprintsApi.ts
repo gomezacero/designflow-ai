@@ -48,6 +48,24 @@ export async function getSprints(): Promise<Sprint[]> {
 }
 
 /**
+ * Fetches all deleted sprints from the database
+ */
+export async function getDeletedSprints(): Promise<Sprint[]> {
+  const { data, error } = await supabase
+    .from('sprints')
+    .select('*')
+    .eq('is_deleted', true)
+    .order('deleted_at', { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch deleted sprints: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as SprintRow[];
+  return rows.map(mapSprintRowToSprint);
+}
+
+/**
  * Fetches the active sprint
  * @returns Active sprint or null
  */

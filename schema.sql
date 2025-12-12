@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     reference_links TEXT[] DEFAULT '{}',
     delivery_link TEXT,
     completion_date DATE,
-    completion_date DATE,
+
     is_deleted BOOLEAN DEFAULT false,
     deleted_at TIMESTAMP WITH TIME ZONE,
     deleted_by TEXT,

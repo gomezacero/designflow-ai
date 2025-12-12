@@ -28,9 +28,11 @@ function App() {
   } = useUIState();
   const {
     tasks,
+    deletedTasks,
     designers,
     requesters,
     sprints,
+    deletedSprints,
     activeSprint,
 
     handleCreateTask,
@@ -125,6 +127,7 @@ function App() {
             designers={designers}
             requesters={requesters}
             sprints={sprints}
+            onDeleteTask={onDeleteTask}
           />
         )}
         {currentView === 'sprints' && (
@@ -165,6 +168,8 @@ function App() {
         designers={designers}
         requesters={requesters}
         sprints={sprints}
+        deletedSprints={deletedSprints}
+        deletedTasks={deletedTasks}
         onCreateSprint={handleCreateSprint}
         onUpdateSprint={handleUpdateSprint}
         onDeleteSprint={onDeleteSprint}
@@ -172,7 +177,6 @@ function App() {
         onDeleteDesigner={handleDeleteDesigner}
         onCreateRequester={handleCreateRequester}
         onDeleteRequester={handleDeleteRequester}
-        tasks={tasks}
         onRestoreSprint={handleRestoreSprint}
         onRestoreTask={handleRestoreTask}
       />

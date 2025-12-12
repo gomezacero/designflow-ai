@@ -12,7 +12,8 @@ interface SettingsModalProps {
     designers: Designer[];
     requesters: string[];
     sprints: Sprint[];
-    tasks: Task[];
+    deletedSprints: Sprint[];
+    deletedTasks: Task[];
 
     // New handlers
     onCreateSprint: (sprint: Partial<Sprint>) => void;
@@ -30,7 +31,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
-    isOpen, onClose, designers, requesters, sprints, tasks,
+    isOpen, onClose, designers, requesters, sprints, deletedSprints, deletedTasks,
     onCreateSprint, onUpdateSprint, onDeleteSprint, onRestoreSprint,
     onCreateDesigner, onDeleteDesigner,
     onCreateRequester, onDeleteRequester,
@@ -161,7 +162,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     {designers.map(designer => (
                                         <div key={designer.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl group border border-transparent hover:border-gray-100 transition-all">
                                             <div className="flex items-center gap-3">
-                                                <img src={designer.avatar} alt={designer.name} className="w-10 h-10 rounded-full bg-gray-100" />
+                                                {designer.avatar ? (
+                                                    <img src={designer.avatar} alt={designer.name} className="w-10 h-10 rounded-full bg-gray-100 object-cover" />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs">
+                                                        {designer.name.charAt(0)}
+                                                    </div>
+                                                )}
                                                 <span className="text-sm font-semibold text-gray-700">{designer.name}</span>
                                             </div>
                                             <button onClick={() => removeDesigner(designer.id)} className="text-gray-300 hover:text-red-500 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2" aria-label={`Remove ${designer.name}`}>
@@ -295,8 +302,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     <Archive size={18} className="text-gray-500" /> Deleted Sprints
                                 </h3>
                                 <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                                    {sprints.filter(s => s.isDeleted).length > 0 ? (
-                                        sprints.filter(s => s.isDeleted).map(sprint => (
+                                    {deletedSprints.length > 0 ? (
+                                        deletedSprints.map(sprint => (
                                             <div key={sprint.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-sm text-gray-900">{sprint.name}</span>
@@ -322,8 +329,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                     <Trash2 size={18} className="text-red-500" /> Deleted Tasks
                                 </h3>
                                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                                    {tasks.filter(t => t.isDeleted).length > 0 ? (
-                                        tasks.filter(t => t.isDeleted).map(task => (
+                                    {deletedTasks.length > 0 ? (
+                                        deletedTasks.map(task => (
                                             <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-sm text-gray-900 line-clamp-1">{task.title}</span>

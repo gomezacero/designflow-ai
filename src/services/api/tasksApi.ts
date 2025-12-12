@@ -85,6 +85,24 @@ export async function getTasks(): Promise<Task[]> {
 }
 
 /**
+ * Fetches all deleted tasks from the database
+ */
+export async function getDeletedTasks(): Promise<Task[]> {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*, designer:designers(*)')
+    .eq('is_deleted', true)
+    .order('deleted_at', { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch deleted tasks: ${error.message}`);
+  }
+
+  const rows = (data ?? []) as TaskWithDesignerJoin[];
+  return rows.map(mapTaskRowToTask);
+}
+
+/**
  * Fetches a single task by ID
  * @param id - Task ID
  * @returns Task or null if not found

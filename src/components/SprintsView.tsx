@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Sprint, Task, Status } from '../models';
 import { TaskCard } from './TaskCard';
+import { SortableTaskCard } from './SortableTaskCard';
 import { Calendar, ChevronDown, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
+import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { getPriorityWeight } from '../utils';
 
 interface SprintsViewProps {
@@ -14,6 +17,33 @@ interface SprintsViewProps {
 
 export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTaskClick, onDeleteSprint, onDeleteTask }) => {
     const [expandedSprintId, setExpandedSprintId] = useState<string | null>(null);
+    const [activeId, setActiveId] = useState<string | null>(null);
+
+    // DnD Sensors
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveId(event.active.id as string);
+    };
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        setActiveId(null);
+
+        // TODO: Implement actual reordering logic here when backend supports it
+        if (over && active.id !== over.id) {
+            console.log(`Moved task ${active.id} to position of ${over.id}`);
+        }
+    };
 
     // Group tasks by sprint
     const tasksBySprint = useMemo(() => {
@@ -141,18 +171,41 @@ export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTask
                                 <div className="border-t border-gray-100 bg-gray-50/50 p-5 animate-slideDown">
                                     {sprintTasks.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                            {sprintTasks.map(task => (
-                                                <TaskCard
-                                                    key={task.id}
-                                                    task={task}
-                                                    onClick={(t) => onTaskClick?.(t)}
-                                                    onDelete={(t) => {
-                                                        if (window.confirm(`Are you sure you want to delete "${t.title}"?`)) {
-                                                            onDeleteTask?.(t.id);
-                                                        }
-                                                    }}
-                                                />
-                                            ))}
+                                            <DndContext
+                                                sensors={sensors}
+                                                collisionDetection={closestCorners}
+                                                onDragStart={handleDragStart}
+                                                onDragEnd={handleDragEnd}
+                                            >
+                                                <SortableContext
+                                                    items={sprintTasks.map(t => t.id)}
+                                                    strategy={rectSortingStrategy}
+                                                >
+                                                    {sprintTasks.map(task => (
+                                                        <SortableTaskCard
+                                                            key={task.id}
+                                                            task={task}
+                                                            onClick={(t) => onTaskClick?.(t)}
+                                                            onDelete={(t) => {
+                                                                if (window.confirm(`Are you sure you want to delete "${t.title}"?`)) {
+                                                                    onDeleteTask?.(t.id);
+                                                                }
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </SortableContext>
+                                                <DragOverlay>
+                                                    {activeId ? (
+                                                        <div className="rotate-2 scale-105 cursor-grabbing">
+                                                            <TaskCard
+                                                                task={tasks.find(t => t.id === activeId)!}
+                                                                onClick={() => { }}
+                                                            // onDelete omitted in overlay for cleaner look
+                                                            />
+                                                        </div>
+                                                    ) : null}
+                                                </DragOverlay>
+                                            </DndContext>
                                         </div>
                                     ) : (
                                         <div className="text-center py-8 text-gray-400 text-sm italic">

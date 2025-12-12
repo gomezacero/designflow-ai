@@ -12,9 +12,11 @@ import * as api from '../services/api';
 interface UseAppStateReturn {
   // Data
   tasks: Task[];
+  deletedTasks: Task[];
   designers: Designer[];
   requesters: string[];
   sprints: Sprint[];
+  deletedSprints: Sprint[];
   activeSprint: string;
 
   // Loading & Error states
@@ -67,9 +69,11 @@ function isSupabaseConfigured(): boolean {
  */
 export const useAppState = (): UseAppStateReturn => {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
+  const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
   const [designers, setDesigners] = useState<Designer[]>(INITIAL_DESIGNERS);
   const [requesters, setRequesters] = useState<string[]>(INITIAL_REQUESTERS);
   const [sprints, setSprints] = useState<Sprint[]>(INITIAL_SPRINTS);
+  const [deletedSprints, setDeletedSprints] = useState<Sprint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -90,17 +94,21 @@ export const useAppState = (): UseAppStateReturn => {
     setError(null);
 
     try {
-      const [tasksData, designersData, requestersData, sprintsData] = await Promise.all([
+      const [tasksData, deletedTasksData, designersData, requestersData, sprintsData, deletedSprintsData] = await Promise.all([
         api.getTasks(),
+        api.getDeletedTasks(),
         api.getDesigners(),
         api.getRequesters(),
         api.getSprints(),
+        api.getDeletedSprints(),
       ]);
 
       setTasks(tasksData);
+      setDeletedTasks(deletedTasksData);
       setDesigners(designersData);
       setRequesters(requestersData);
       setSprints(sprintsData);
+      setDeletedSprints(deletedSprintsData);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch data';
       setError(message);
@@ -302,14 +310,26 @@ export const useAppState = (): UseAppStateReturn => {
         try {
           setError(null);
           await api.softDeleteSprint(id, userId);
-          setSprints(prev => prev.filter(s => s.id !== id));
+          setSprints(prev => {
+            const sprintToDelete = prev.find(s => s.id === id);
+            if (sprintToDelete) {
+              setDeletedSprints(curr => [sprintToDelete, ...curr]);
+            }
+            return prev.filter(s => s.id !== id);
+          });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Failed to delete sprint';
           setError(message);
           console.error('Error deleting sprint:', err);
         }
       } else {
-        setSprints(prev => prev.filter(s => s.id !== id));
+        setSprints(prev => {
+          const sprintToDelete = prev.find(s => s.id === id);
+          if (sprintToDelete) {
+            setDeletedSprints(curr => [{ ...sprintToDelete, isDeleted: true }, ...curr]);
+          }
+          return prev.filter(s => s.id !== id);
+        });
       }
     },
     [useSupabase]
@@ -321,16 +341,29 @@ export const useAppState = (): UseAppStateReturn => {
         try {
           setError(null);
           await api.restoreSprint(id);
-          // We need to re-fetch sprints to get the restored one back, or we could optimistically add it back if we had the data.
-          // For simplicity, let's just refresh data
-          await fetchAllData();
+          // Optimistic update
+          setDeletedSprints(prev => {
+            const restored = prev.find(s => s.id === id);
+            if (restored) {
+              setSprints(curr => [restored, ...curr]);
+            }
+            return prev.filter(s => s.id !== id);
+          });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Failed to restore sprint';
           setError(message);
         }
+      } else {
+        setDeletedSprints(prev => {
+          const restored = prev.find(s => s.id === id);
+          if (restored) {
+            setSprints(curr => [{ ...restored, isDeleted: false }, ...curr]);
+          }
+          return prev.filter(s => s.id !== id);
+        });
       }
     },
-    [useSupabase, fetchAllData]
+    [useSupabase]
   );
 
   const handleDeleteTask = useCallback(
@@ -339,13 +372,25 @@ export const useAppState = (): UseAppStateReturn => {
         try {
           setError(null);
           await api.softDeleteTask(taskId, userId);
-          setTasks(prev => prev.filter(t => t.id !== taskId));
+          setTasks(prev => {
+            const taskToDelete = prev.find(t => t.id === taskId);
+            if (taskToDelete) {
+              setDeletedTasks(curr => [taskToDelete, ...curr]);
+            }
+            return prev.filter(t => t.id !== taskId);
+          });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Failed to delete task';
           setError(message);
         }
       } else {
-        setTasks(prev => prev.filter(t => t.id !== taskId));
+        setTasks(prev => {
+          const taskToDelete = prev.find(t => t.id === taskId);
+          if (taskToDelete) {
+            setDeletedTasks(curr => [{ ...taskToDelete, isDeleted: true }, ...curr]);
+          }
+          return prev.filter(t => t.id !== taskId);
+        });
       }
     },
     [useSupabase]
@@ -357,14 +402,28 @@ export const useAppState = (): UseAppStateReturn => {
         try {
           setError(null);
           await api.restoreTask(taskId);
-          await fetchAllData();
+          setDeletedTasks(prev => {
+            const restored = prev.find(t => t.id === taskId);
+            if (restored) {
+              setTasks(curr => [restored, ...curr]);
+            }
+            return prev.filter(t => t.id !== taskId);
+          });
         } catch (err) {
           const message = err instanceof Error ? err.message : 'Failed to restore task';
           setError(message);
         }
+      } else {
+        setDeletedTasks(prev => {
+          const restored = prev.find(t => t.id === taskId);
+          if (restored) {
+            setTasks(curr => [{ ...restored, isDeleted: false }, ...curr]);
+          }
+          return prev.filter(t => t.id !== taskId);
+        });
       }
     },
-    [useSupabase, fetchAllData]
+    [useSupabase]
   );
 
   /**
@@ -465,9 +524,11 @@ export const useAppState = (): UseAppStateReturn => {
 
   return {
     tasks,
+    deletedTasks,
     designers,
     requesters,
     sprints,
+    deletedSprints,
     activeSprint,
     isLoading,
     error,
