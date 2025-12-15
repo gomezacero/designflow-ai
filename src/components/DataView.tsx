@@ -208,13 +208,13 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
     const maxChartValue = Math.max(...chartData.map(d => Math.max(d.received, d.completed)), 5);
 
     return (
-        <div className="p-4 md:p-8 space-y-8 w-full h-full overflow-y-auto custom-scrollbar bg-[#F5F5F7]">
+        <div className="p-4 md:p-8 space-y-8 w-full h-full overflow-y-auto custom-scrollbar bg-bg-canvas">
 
             {/* HEADER & CONTROLS */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-ios-text tracking-tight mb-1">Analytics Dashboard</h1>
-                    <p className="text-sm text-ios-secondary">Performance metrics & team velocity.</p>
+                    <h1 className="text-3xl font-bold text-text-primary tracking-tight mb-1">Analytics Dashboard</h1>
+                    <p className="text-sm text-text-secondary">Performance metrics & team velocity.</p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -222,38 +222,38 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                     {timeRange === 'custom' && (
                         <div className="flex items-center gap-2 animate-fadeIn">
                             <div className="relative">
-                                <CalendarIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                <CalendarIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
                                 <input
                                     type="date"
                                     value={customStart}
                                     onClick={openDatePicker}
                                     onChange={(e) => setCustomStart(e.target.value)}
-                                    className="pl-9 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    className="pl-9 pr-3 py-1.5 bg-bg-surface border border-border-default rounded-lg text-xs font-bold text-text-primary shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20"
                                 />
                             </div>
-                            <span className="text-gray-400 text-xs font-medium">to</span>
+                            <span className="text-text-secondary text-xs font-medium">to</span>
                             <div className="relative">
-                                <CalendarIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                <CalendarIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
                                 <input
                                     type="date"
                                     value={customEnd}
                                     onClick={openDatePicker}
                                     onChange={(e) => setCustomEnd(e.target.value)}
-                                    className="pl-9 pr-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    className="pl-9 pr-3 py-1.5 bg-bg-surface border border-border-default rounded-lg text-xs font-bold text-text-primary shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20"
                                 />
                             </div>
                         </div>
                     )}
 
                     {/* Range Selectors */}
-                    <div className="flex bg-white p-1 rounded-xl shadow-sm border border-gray-200">
+                    <div className="flex bg-bg-surface p-1 rounded-xl shadow-sm border border-border-default">
                         {(['7d', '30d', '90d', 'all', 'custom'] as TimeRange[]).map((range) => (
                             <button
                                 key={range}
                                 onClick={() => setTimeRange(range)}
                                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${timeRange === range
-                                    ? 'bg-gray-900 text-white shadow-md'
-                                    : 'text-gray-500 hover:text-gray-900'
+                                    ? 'bg-text-primary text-bg-surface shadow-md'
+                                    : 'text-text-secondary hover:text-text-primary'
                                     }`}
                             >
                                 {range === 'all' ? 'All Time' : range.charAt(0).toUpperCase() + range.slice(1)}
@@ -271,7 +271,7 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                     subtitle="Story points delivered"
                     icon={Zap}
                     color="text-amber-500"
-                    bg="bg-amber-50"
+                    bg="bg-amber-50 dark:bg-amber-900/20"
                 />
                 <KpiCard
                     title="Completion Rate"
@@ -279,7 +279,7 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                     subtitle={`${kpis.completedCount}/${kpis.total} Tasks`}
                     icon={TrendingUp}
                     color="text-green-500"
-                    bg="bg-green-50"
+                    bg="bg-green-50 dark:bg-green-900/20"
                 />
                 <KpiCard
                     title="Avg. Turnaround"
@@ -287,7 +287,7 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                     subtitle="Request to Done"
                     icon={Clock}
                     color="text-blue-500"
-                    bg="bg-blue-50"
+                    bg="bg-blue-50 dark:bg-blue-900/20"
                 />
                 <KpiCard
                     title="Active Volume"
@@ -295,12 +295,12 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                     subtitle="Tasks in period"
                     icon={BarChart2}
                     color="text-purple-500"
-                    bg="bg-purple-50"
+                    bg="bg-purple-50 dark:bg-purple-900/20"
                 />
             </div>
 
             {/* TABS NAVIGATION */}
-            <div className="border-b border-gray-200 flex gap-6">
+            <div className="border-b border-border-default flex gap-6">
                 <TabButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} label="Overview" icon={BarChart2} />
                 <TabButton active={activeTab === 'designers'} onClick={() => setActiveTab('designers')} label="Designers Performance" icon={Users} />
                 <TabButton active={activeTab === 'requesters'} onClick={() => setActiveTab('requesters')} label="Client Demand" icon={PieChart} />
@@ -310,11 +310,11 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
             {activeTab === 'overview' && (
                 <div className="space-y-6 animate-slideDown">
                     {/* Main Chart */}
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="bg-bg-surface p-6 rounded-3xl shadow-sm border border-border-default">
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900">Task Flow</h3>
-                                <p className="text-xs text-gray-500">Incoming Requests vs. Completions over time</p>
+                                <h3 className="text-lg font-bold text-text-primary">Task Flow</h3>
+                                <p className="text-xs text-text-secondary">Incoming Requests vs. Completions over time</p>
                             </div>
                             <div className="flex gap-4 text-xs font-bold">
                                 <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500"></div> Received</div>
@@ -354,14 +354,14 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
             {activeTab === 'designers' && (
                 <div className="grid grid-cols-1 gap-4 animate-slideDown">
                     {designerMetrics.map((designer) => (
-                        <div key={designer.id} className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-6 hover:shadow-md transition-shadow">
+                        <div key={designer.id} className="bg-bg-surface p-4 md:p-6 rounded-2xl shadow-sm border border-border-default flex flex-col md:flex-row items-center gap-6 hover:shadow-md transition-shadow">
                             {/* Avatar & Info */}
                             <div className="flex items-center gap-4 w-full md:w-1/4">
                                 {designer.avatar ? (
                                     <img
                                         src={designer.avatar}
                                         alt={designer.name}
-                                        className="w-16 h-16 rounded-full bg-gray-50 object-cover border-2 border-white shadow-sm"
+                                        className="w-16 h-16 rounded-full bg-bg-canvas object-cover border-2 border-bg-surface shadow-sm"
                                         onError={(e) => {
                                             // Fallback if image fails to load
                                             e.currentTarget.style.display = 'none';
@@ -376,23 +376,23 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                                 </div>
 
                                 <div>
-                                    <h3 className="font-bold text-gray-900 text-lg">{designer.name}</h3>
-                                    <p className="text-xs text-gray-500 font-medium">Senior Designer</p>
+                                    <h3 className="font-bold text-text-primary text-lg">{designer.name}</h3>
+                                    <p className="text-xs text-text-secondary font-medium">Senior Designer</p>
                                 </div>
                             </div>
 
                             {/* Stats Grid */}
-                            <div className="flex-1 w-full grid grid-cols-3 gap-4 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
+                            <div className="flex-1 w-full grid grid-cols-3 gap-4 border-t md:border-t-0 md:border-l border-border-default pt-4 md:pt-0 md:pl-6">
                                 <div className="text-center md:text-left">
-                                    <div className="text-xs text-gray-400 font-bold uppercase">Points</div>
-                                    <div className="text-xl font-bold text-gray-900">{designer.totalPoints}</div>
+                                    <div className="text-xs text-text-secondary font-bold uppercase">Points</div>
+                                    <div className="text-xl font-bold text-text-primary">{designer.totalPoints}</div>
                                 </div>
                                 <div className="text-center md:text-left">
-                                    <div className="text-xs text-gray-400 font-bold uppercase">Assigned</div>
-                                    <div className="text-xl font-bold text-gray-900">{designer.tasksAssigned}</div>
+                                    <div className="text-xs text-text-secondary font-bold uppercase">Assigned</div>
+                                    <div className="text-xl font-bold text-text-primary">{designer.tasksAssigned}</div>
                                 </div>
                                 <div className="text-center md:text-left">
-                                    <div className="text-xs text-gray-400 font-bold uppercase">Completed</div>
+                                    <div className="text-xs text-text-secondary font-bold uppercase">Completed</div>
                                     <div className="text-xl font-bold text-green-600">{designer.tasksDone}</div>
                                 </div>
                             </div>
@@ -419,7 +419,7 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
             {activeTab === 'requesters' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slideDown">
                     {requesterMetrics.map(req => (
-                        <div key={req.name} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                        <div key={req.name} className="bg-bg-surface p-6 rounded-2xl shadow-sm border border-border-default relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <PieChart size={60} className="text-blue-500" />
                             </div>
@@ -428,20 +428,20 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 flex items-center justify-center font-bold">
                                     {req.name.substring(0, 2).toUpperCase()}
                                 </div>
-                                <h3 className="font-bold text-gray-900 text-lg">{req.name}</h3>
+                                <h3 className="font-bold text-text-primary text-lg">{req.name}</h3>
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center border-b border-gray-50 pb-2">
-                                    <span className="text-sm text-gray-500">Total Requests</span>
-                                    <span className="text-lg font-bold text-gray-900">{req.total}</span>
+                                <div className="flex justify-between items-center border-b border-border-default pb-2">
+                                    <span className="text-sm text-text-secondary">Total Requests</span>
+                                    <span className="text-lg font-bold text-text-primary">{req.total}</span>
                                 </div>
-                                <div className="flex justify-between items-center border-b border-gray-50 pb-2">
-                                    <span className="text-sm text-gray-500">Completed</span>
+                                <div className="flex justify-between items-center border-b border-border-default pb-2">
+                                    <span className="text-sm text-text-secondary">Completed</span>
                                     <span className="text-lg font-bold text-green-600">{req.done}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-500">Top Category</span>
+                                    <span className="text-sm text-text-secondary">Top Category</span>
                                     <span className="text-xs font-bold bg-gray-100 text-gray-700 px-2 py-1 rounded-md">{req.topType}</span>
                                 </div>
                             </div>
@@ -457,11 +457,11 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
 // --- SUBCOMPONENTS ---
 
 const KpiCard: React.FC<KpiCardProps> = ({ title, value, subtitle, icon: Icon, color, bg }) => (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-start justify-between hover:shadow-md transition-shadow cursor-default">
+    <div className="bg-bg-surface p-5 rounded-2xl shadow-sm border border-border-default flex items-start justify-between hover:shadow-md transition-shadow cursor-default">
         <div>
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">{title}</p>
-            <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-            <p className="text-xs text-gray-500 mt-1 font-medium">{subtitle}</p>
+            <p className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-1">{title}</p>
+            <h3 className="text-2xl font-bold text-text-primary">{value}</h3>
+            <p className="text-xs text-text-secondary mt-1 font-medium">{subtitle}</p>
         </div>
         <div className={`p-3 rounded-xl ${bg} ${color}`}>
             <Icon size={20} />
@@ -473,8 +473,8 @@ const TabButton: React.FC<TabButtonProps> = ({ active, onClick, label, icon: Ico
     <button
         onClick={onClick}
         className={`pb-3 px-1 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${active
-            ? 'border-blue-500 text-blue-600'
-            : 'border-transparent text-gray-400 hover:text-gray-600'
+            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            : 'border-transparent text-text-secondary hover:text-text-primary'
             }`}
     >
         <Icon size={16} />
