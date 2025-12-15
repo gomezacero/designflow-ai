@@ -253,7 +253,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0">
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center gap-2 px-4 py-3 md:py-2 text-sm rounded-xl font-medium transition-all whitespace-nowrap ${showFilters ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-600 shadow-sm hover:bg-gray-50'}`}
+                            className={`flex items-center gap-2 px-4 py-3 md:py-2 text-sm rounded-xl font-medium transition-all whitespace-nowrap ${showFilters ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-bg-surface text-text-secondary border border-border-default shadow-sm hover:bg-bg-surface-hover hover:text-text-primary'}`}
                         >
                             <Filter size={18} />
                             <span>Filters</span>
@@ -285,11 +285,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                             {/* Sprint Filter */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <Calendar size={12} /> Sprint
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.sprint}
                                     onChange={e => setFilters({ ...filters, sprint: e.target.value })}
                                 >
@@ -300,26 +300,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                             {/* Date Range */}
                             <div className="space-y-1.5 lg:col-span-2">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <Calendar size={12} /> Date Range
                                 </label>
                                 <div className="flex flex-col sm:flex-row gap-2">
                                     <div className="relative flex-1">
-                                        <Calendar size={14} className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
+                                        <Calendar size={14} className="absolute left-3 top-3 text-text-secondary pointer-events-none" />
                                         <input
                                             type="date"
                                             onClick={openDatePicker}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer"
+                                            className="w-full bg-bg-canvas border border-border-default rounded-xl pl-9 pr-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer transition-colors"
                                             value={filters.dateStart}
                                             onChange={e => setFilters({ ...filters, dateStart: e.target.value })}
                                         />
                                     </div>
                                     <div className="relative flex-1">
-                                        <Calendar size={14} className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
+                                        <Calendar size={14} className="absolute left-3 top-3 text-text-secondary pointer-events-none" />
                                         <input
                                             type="date"
                                             onClick={openDatePicker}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer"
+                                            className="w-full bg-bg-canvas border border-border-default rounded-xl pl-9 pr-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer transition-colors"
                                             value={filters.dateEnd}
                                             onChange={e => setFilters({ ...filters, dateEnd: e.target.value })}
                                         />
@@ -329,11 +329,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                             {/* Designer */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <User size={12} /> Designer
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.designerId}
                                     onChange={e => setFilters({ ...filters, designerId: e.target.value })}
                                 >
@@ -344,11 +344,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                             {/* Requester */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <User size={12} /> Requester
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.requester}
                                     onChange={e => setFilters({ ...filters, requester: e.target.value })}
                                 >
@@ -359,11 +359,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                             {/* Type */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <Tag size={12} /> Type
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.type}
                                     onChange={e => setFilters({ ...filters, type: e.target.value })}
                                 >
