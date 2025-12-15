@@ -12,7 +12,7 @@ import { Task } from './models';
 
 function App() {
   // Custom Hooks
-  const { isAuthenticated, isLoading, user, updateProfile, logout } = useAuth();
+  const { isAuthenticated, isLoading, user, updateProfile, logout, isPasswordRecovery } = useAuth();
   const {
     currentView,
     setCurrentView,
@@ -71,13 +71,13 @@ function App() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7]">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   // --- Render Login Gate ---
-  if (!isAuthenticated) {
+  if (!isAuthenticated || isPasswordRecovery) {
     // We don't pass 'onLogin' anymore because LoginScreen handles it with useAuth directly
     // Wait, LoginScreen is inside components, it probably needs props or uses the hook.
     // Let's assume for now we pass the logic or the component uses the hook.

@@ -15,20 +15,23 @@ interface UseAuthReturn {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: User | null;
+  isPasswordRecovery: boolean;
   login: (email: string, password: string) => Promise<{ error: any }>;
   signup: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (password: string) => Promise<{ error: any }>;
 }
 
 /**
  * Custom hook for REAL Supabase authentication
  */
 export const useAuth = (): UseAuthReturn => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState<boolean>(false);
 
   // Fetch the public profile from the 'designers' table
   const fetchProfile = async (userId: string, email?: string) => {
@@ -85,7 +88,11 @@ export const useAuth = (): UseAuthReturn => {
     // 2. Listen for changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+      }
+
       if (session?.user) {
         // Only fetch if we don't have the user or it's a different user
         fetchProfile(session.user.id, session.user.email);
@@ -156,6 +163,15 @@ export const useAuth = (): UseAuthReturn => {
     }
   };
 
+  const updatePassword = async (password: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      return { error };
+    } catch (e) {
+      return { error: e };
+    }
+  };
+
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
@@ -185,10 +201,12 @@ export const useAuth = (): UseAuthReturn => {
     isAuthenticated,
     isLoading,
     user,
+    isPasswordRecovery,
     login,
     signup,
-    resetPassword,
     logout,
     updateProfile,
+    resetPassword,
+    updatePassword
   };
 };
