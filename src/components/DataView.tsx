@@ -252,8 +252,8 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                                 key={range}
                                 onClick={() => setTimeRange(range)}
                                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${timeRange === range
-                                        ? 'bg-gray-900 text-white shadow-md'
-                                        : 'text-gray-500 hover:text-gray-900'
+                                    ? 'bg-gray-900 text-white shadow-md'
+                                    : 'text-gray-500 hover:text-gray-900'
                                     }`}
                             >
                                 {range === 'all' ? 'All Time' : range.charAt(0).toUpperCase() + range.slice(1)}
@@ -357,7 +357,24 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
                         <div key={designer.id} className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-6 hover:shadow-md transition-shadow">
                             {/* Avatar & Info */}
                             <div className="flex items-center gap-4 w-full md:w-1/4">
-                                <img src={designer.avatar} alt={designer.name} className="w-16 h-16 rounded-full bg-gray-50 object-cover border-2 border-white shadow-sm" />
+                                {designer.avatar ? (
+                                    <img
+                                        src={designer.avatar}
+                                        alt={designer.name}
+                                        className="w-16 h-16 rounded-full bg-gray-50 object-cover border-2 border-white shadow-sm"
+                                        onError={(e) => {
+                                            // Fallback if image fails to load
+                                            e.currentTarget.style.display = 'none';
+                                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                        }}
+                                    />
+                                ) : null}
+
+                                {/* Fallback Initials (Shown if no avatar or on error) */}
+                                <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm flex items-center justify-center text-xl font-bold text-gray-500 ${designer.avatar ? 'hidden' : ''}`}>
+                                    {designer.name.slice(0, 2).toUpperCase()}
+                                </div>
+
                                 <div>
                                     <h3 className="font-bold text-gray-900 text-lg">{designer.name}</h3>
                                     <p className="text-xs text-gray-500 font-medium">Senior Designer</p>
@@ -456,8 +473,8 @@ const TabButton: React.FC<TabButtonProps> = ({ active, onClick, label, icon: Ico
     <button
         onClick={onClick}
         className={`pb-3 px-1 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${active
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
+            ? 'border-blue-500 text-blue-600'
+            : 'border-transparent text-gray-400 hover:text-gray-600'
             }`}
     >
         <Icon size={16} />
