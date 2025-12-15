@@ -86,7 +86,7 @@ function App() {
 
   // --- Render Main App ---
   return (
-    <div className="min-h-screen bg-[#F5F5F7] font-sans text-ios-text selection:bg-blue-100 selection:text-blue-900 flex animate-fadeIn">
+    <div className="min-h-screen bg-[#F5F5F7] dark:bg-gray-900 font-sans text-ios-text dark:text-gray-100 selection:bg-blue-100 selection:text-blue-900 flex animate-fadeIn">
 
       {/* Mobile Menu Button */}
       <button

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { X, Users, Calendar, Plus, Trash2, UserPlus, Archive, RotateCcw } from 'lucide-react';
+import { X, Users, Calendar, Plus, Trash2, UserPlus, Archive, RotateCcw, Moon, Sun } from 'lucide-react';
+import { useTheme } from '../hooks/useTheme';
 import { Designer, Sprint, Task } from '../models';
 import { Button } from './Button';
 import { openDatePicker } from '../utils';
@@ -37,7 +38,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onCreateRequester, onDeleteRequester,
     onRestoreTask
 }) => {
-    const [activeTab, setActiveTab] = useState<'team' | 'sprints' | 'deleted'>('team');
+    const { theme, toggleTheme } = useTheme();
+    const [activeTab, setActiveTab] = useState<'team' | 'sprints' | 'deleted' | 'appearance'>('team');
 
     // Temp states for inputs
     const [newDesignerName, setNewDesignerName] = useState('');
@@ -130,6 +132,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         className={`pb-3 px-2 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'deleted' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
                     >
                         <Archive size={18} /> Deleted Items
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('appearance')}
+                        className={`pb-3 px-2 text-sm font-semibold flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === 'appearance' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                    >
+                        {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />} Appearance
                     </button>
                 </div>
 
@@ -352,6 +360,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                         <p className="text-sm text-gray-400 italic">No deleted tasks.</p>
                                     )}
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'appearance' && (
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6">Appearance</h3>
+
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-3 rounded-full ${theme === 'dark' ? 'bg-indigo-500 text-white' : 'bg-amber-400 text-white'}`}>
+                                        {theme === 'dark' ? <Moon size={24} /> : <Sun size={24} />}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-gray-900 dark:text-white">Dark Mode</h4>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={toggleTheme}
+                                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${theme === 'dark' ? 'bg-indigo-600' : 'bg-gray-200'
+                                        }`}
+                                >
+                                    <span
+                                        className={`${theme === 'dark' ? 'translate-x-6' : 'translate-x-1'
+                                            } inline-block h-5 w-5 transform rounded-full bg-white transition-transform`}
+                                    />
+                                </button>
                             </div>
                         </div>
                     )}
