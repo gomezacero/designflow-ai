@@ -142,8 +142,13 @@ export const useAuth = (): UseAuthReturn => {
 
   const resetPassword = async (email: string) => {
     try {
+      // Use production URL for password reset, fallback to current origin for local dev
+      const redirectUrl = import.meta.env.PROD
+        ? 'https://designflow-ai-lemon.vercel.app'
+        : window.location.origin;
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin,
+        redirectTo: redirectUrl,
       });
       return { error };
     } catch (e) {
