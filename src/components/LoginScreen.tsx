@@ -3,8 +3,16 @@ import { useAuth } from '../hooks/useAuth';
 import { Mail, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from './Button';
 
-export const LoginScreen: React.FC = () => {
+interface LoginScreenProps {
+    isRecoveryMode?: boolean;
+}
+
+export const LoginScreen: React.FC<LoginScreenProps> = ({ isRecoveryMode = false }) => {
     const { login, signup, resetPassword, isPasswordRecovery, updatePassword } = useAuth();
+
+    // Merge internal state (if any) with prop
+    const inRecoveryMode = isRecoveryMode || isPasswordRecovery;
+
     const [isSignUp, setIsSignUp] = useState(false);
     const [isReset, setIsReset] = useState(false);
     // If in recovery mode, default to true for a local "isUpdateMode" or just use the prop directly
@@ -24,7 +32,7 @@ export const LoginScreen: React.FC = () => {
         setMessage(null);
 
         try {
-            if (isPasswordRecovery) {
+            if (inRecoveryMode) {
                 if (password.length < 6) throw new Error('Password must be at least 6 characters');
                 const { error: updateError } = await updatePassword(password);
                 if (updateError) throw updateError;
@@ -69,10 +77,10 @@ export const LoginScreen: React.FC = () => {
                         <span className="text-white font-bold text-xl tracking-tighter">DF</span>
                     </div>
                     <h1 className="text-3xl font-bold text-ios-text mb-2">
-                        {isPasswordRecovery ? 'Reset Password' : isReset ? 'Reset Password' : isSignUp ? 'Create account' : 'Welcome back'}
+                        {inRecoveryMode ? 'Reset Password' : isReset ? 'Reset Password' : isSignUp ? 'Create account' : 'Welcome back'}
                     </h1>
                     <p className="text-ios-secondary">
-                        {isPasswordRecovery ? 'Enter your new password below.' : isReset ? 'Enter your email to receive instructions.' : isSignUp ? 'Start your 30-day free trial.' : 'Manage your design workflows with AI.'}
+                        {inRecoveryMode ? 'Enter your new password below.' : isReset ? 'Enter your email to receive instructions.' : isSignUp ? 'Start your 30-day free trial.' : 'Manage your design workflows with AI.'}
                     </p>
                 </div>
 
@@ -112,7 +120,7 @@ export const LoginScreen: React.FC = () => {
                             )}
 
                             {/* Email Input - Hidden in Password Recovery Mode */}
-                            {!isPasswordRecovery && (
+                            {!inRecoveryMode && (
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Email</label>
                                     <div className="relative group">
@@ -131,7 +139,7 @@ export const LoginScreen: React.FC = () => {
                             {!isReset && (
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                        {isPasswordRecovery ? 'New Password' : 'Password'}
+                                        {inRecoveryMode ? 'New Password' : 'Password'}
                                     </label>
                                     <div className="relative group">
                                         <Lock className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
@@ -146,7 +154,7 @@ export const LoginScreen: React.FC = () => {
                                 </div>
                             )}
 
-                            {!isSignUp && !isReset && !isPasswordRecovery && (
+                            {!isSignUp && !isReset && !inRecoveryMode && (
                                 <div className="flex justify-end">
                                     <button
                                         type="button"
@@ -165,14 +173,14 @@ export const LoginScreen: React.FC = () => {
                                 className="mt-2 py-3 rounded-xl shadow-lg shadow-blue-500/30"
                                 isLoading={isLoading}
                             >
-                                {isPasswordRecovery ? 'Update Password' : isReset ? 'Send Reset Link' : isSignUp ? 'Create Account' : 'Sign In'}
+                                {inRecoveryMode ? 'Update Password' : isReset ? 'Send Reset Link' : isSignUp ? 'Create Account' : 'Sign In'}
                             </Button>
 
 
                         </form>
 
                         <div className="mt-8 pt-6 border-t border-gray-100 w-full flex justify-center">
-                            <div className="mt-8 flex items-center gap-2 text-sm text-gray-500">
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
                                 <span>
                                     {isReset
                                         ? 'Remember your password?'
@@ -205,8 +213,8 @@ export const LoginScreen: React.FC = () => {
                         © 2023 DesignFlow AI
                     </div>
 
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     );
 };

@@ -77,14 +77,11 @@ function App() {
   }
 
   // --- Render Login Gate ---
+  // Show LoginScreen if not authenticated OR if in password recovery mode
   if (!isAuthenticated || isPasswordRecovery) {
-    // We don't pass 'onLogin' anymore because LoginScreen handles it with useAuth directly
-    // Wait, LoginScreen is inside components, it probably needs props or uses the hook.
-    // Let's assume for now we pass the logic or the component uses the hook.
-    // Given my plan for LoginScreen, I'll make it use the hook directly or props.
-    // For cleanliness, passing props is good, but the hook is global.
-    // I'll check LoginScreen next. For now, I'll pass the auth methods just in case.
-    return <LoginScreen />;
+    // Pass the recovery state from App's useAuth instance to LoginScreen
+    // preventing the internal hook state from overriding the event detection
+    return <LoginScreen isRecoveryMode={isPasswordRecovery} />;
   }
 
   // --- Render Main App ---
