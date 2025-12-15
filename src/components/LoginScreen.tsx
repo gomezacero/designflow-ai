@@ -209,7 +209,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ isRecoveryMode = false
                     </div>
 
                     {/* Footer */}
-                    <div className="absolute bottom-6 text-gray-400 text-xs font-medium">
+                    <div className="mt-8 text-gray-400 text-xs font-medium">
                         © 2023 DesignFlow AI
                     </div>
 
