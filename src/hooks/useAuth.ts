@@ -17,6 +17,7 @@ interface UseAuthReturn {
   user: User | null;
   login: (email: string, password: string) => Promise<{ error: any }>;
   signup: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
 }
@@ -139,6 +140,17 @@ export const useAuth = (): UseAuthReturn => {
     return { error: null };
   }, []);
 
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      });
+      return { error };
+    } catch (e) {
+      return { error: e };
+    }
+  };
+
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
@@ -170,6 +182,7 @@ export const useAuth = (): UseAuthReturn => {
     user,
     login,
     signup,
+    resetPassword,
     logout,
     updateProfile,
   };

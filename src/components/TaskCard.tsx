@@ -7,9 +7,10 @@ interface TaskCardProps {
   task: Task;
   onClick: (task: Task) => void;
   onDelete?: (task: Task) => void;
+  className?: string;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, onDelete }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, onDelete, className = '' }) => {
 
   const getStatusColor = (status: Status) => {
     switch (status) {
@@ -25,7 +26,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, onDelete }) =
   return (
     <div
       onClick={() => onClick(task)}
-      className="group cursor-pointer relative bg-white/90 backdrop-blur-md rounded-xl p-3.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 border border-white/60 flex flex-col gap-2.5"
+      className={`group cursor-pointer relative bg-white/90 backdrop-blur-md rounded-xl p-3.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 border border-white/60 flex flex-col gap-2.5 ${className}`}
     >
       {/* Delete Button (Visible on Hover) */}
       {onDelete && (

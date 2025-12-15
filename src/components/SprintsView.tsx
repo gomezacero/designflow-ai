@@ -2,10 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { Sprint, Task, Status } from '../models';
 import { TaskCard } from './TaskCard';
 import { SortableTaskCard } from './SortableTaskCard';
-import { Calendar, ChevronDown, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronRight } from 'lucide-react';
 import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
-import { getPriorityWeight } from '../utils';
 
 interface SprintsViewProps {
     sprints: Sprint[];
