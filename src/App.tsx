@@ -52,6 +52,7 @@ function App() {
     handleDeleteRequester,
     handleDeleteTask,
     handleRestoreTask,
+    refreshData,
   } = useAppState();
 
   // Wrappers to inject user ID
@@ -150,7 +151,13 @@ function App() {
             {currentView === 'profile' && user && (
               <ProfileView
                 user={user}
-                onUpdateProfile={updateProfile}
+                onUpdateProfile={async (updates) => {
+                  await updateProfile(updates);
+                  // Refresh designers list to reflect role changes immediately
+                  if (updates.role) {
+                    refreshData();
+                  }
+                }}
               />
             )}
             {currentView === 'data' && (

@@ -45,9 +45,12 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                         <div className="md:col-span-8 space-y-8">
                             <div className="bg-bg-surface p-6 rounded-2xl shadow-sm border border-border-default space-y-3">
                                 <h3 className="text-sm font-bold text-text-primary uppercase tracking-wide">Brief / Description</h3>
-                                <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap">
-                                    {task.description || "No description provided."}
-                                </p>
+                                <textarea
+                                    value={task.description || ''}
+                                    onChange={(e) => onUpdate({ description: e.target.value })}
+                                    placeholder="Add a description for this task..."
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-4 py-3 text-sm text-text-secondary leading-relaxed focus:bg-bg-surface focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none transition-all resize-none min-h-[150px]"
+                                />
                             </div>
 
                             {/* Delivery Section - NEW */}
