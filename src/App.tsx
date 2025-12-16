@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DataView } from './components/DataView';
@@ -87,9 +88,32 @@ function App() {
     return <LoginScreen isRecoveryMode={isPasswordRecovery} />;
   }
 
+  // State for showing loading when refreshing data (e.g., after role change)
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   // --- Render Main App ---
   return (
     <div className="min-h-screen bg-bg-canvas font-sans text-text-primary selection:bg-blue-100 selection:text-blue-900 flex animate-fadeIn transition-colors duration-300">
+
+      {/* Full-screen Loading Overlay - Blocks ALL interactions during initial load */}
+      {isDataLoading && (
+        <div className="fixed inset-0 z-[100] bg-bg-canvas flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-text-secondary text-sm font-medium">Loading your workspace...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Refresh Overlay - Shows when updating profile/refreshing data */}
+      {isRefreshing && (
+        <div className="fixed inset-0 z-[90] bg-bg-canvas/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 bg-bg-surface p-8 rounded-2xl shadow-lg border border-border-default">
+            <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-text-primary text-sm font-medium">Updating...</p>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu Button */}
       <button
@@ -120,54 +144,46 @@ function App() {
 
       {/* Main Content - Full Width Adaptable */}
       <main className="flex-1 min-w-0 transition-all duration-300 w-full h-screen overflow-hidden">
-        {/* Show loading spinner while fetching app data */}
-        {isDataLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-              <p className="text-text-secondary text-sm">Loading your workspace...</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            {currentView === 'dashboard' && (
-              <Dashboard
-                tasks={tasks}
-                onUpdateTask={handleUpdateTask}
-                designers={designers}
-                requesters={requesters}
-                sprints={sprints}
-                onDeleteTask={onDeleteTask}
-              />
-            )}
-            {currentView === 'sprints' && (
-              <SprintsView
-                sprints={sprints}
-                tasks={tasks}
-                onDeleteSprint={onDeleteSprint}
-                onDeleteTask={onDeleteTask}
-              />
-            )}
-            {currentView === 'profile' && user && (
-              <ProfileView
-                user={user}
-                onUpdateProfile={async (updates) => {
-                  await updateProfile(updates);
-                  // Refresh designers list to reflect role changes immediately
-                  if (updates.role) {
-                    refreshData();
-                  }
-                }}
-              />
-            )}
-            {currentView === 'data' && (
-              <DataView
-                tasks={tasks}
-                designers={designers}
-                requesters={requesters}
-              />
-            )}
-          </>
+        {currentView === 'dashboard' && (
+          <Dashboard
+            tasks={tasks}
+            onUpdateTask={handleUpdateTask}
+            designers={designers}
+            requesters={requesters}
+            sprints={sprints}
+            onDeleteTask={onDeleteTask}
+          />
+        )}
+        {currentView === 'sprints' && (
+          <SprintsView
+            sprints={sprints}
+            tasks={tasks}
+            onDeleteSprint={onDeleteSprint}
+            onDeleteTask={onDeleteTask}
+          />
+        )}
+        {currentView === 'profile' && user && (
+          <ProfileView
+            user={user}
+            onUpdateProfile={async (updates) => {
+              if (updates.role) {
+                setIsRefreshing(true);
+              }
+              await updateProfile(updates);
+              // Refresh designers list to reflect role changes immediately
+              if (updates.role) {
+                await refreshData();
+                setIsRefreshing(false);
+              }
+            }}
+          />
+        )}
+        {currentView === 'data' && (
+          <DataView
+            tasks={tasks}
+            designers={designers}
+            requesters={requesters}
+          />
         )}
       </main>
 
