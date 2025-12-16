@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { LucideIcon } from 'lucide-react';
-import { Task, Designer, Status } from '../models';
+import { Task, Designer, Status, Requester } from '../models';
 import {
     TrendingUp,
     Users,
@@ -16,7 +16,7 @@ import { openDatePicker, getDaysInPast, formatDateKey } from '../utils';
 interface DataViewProps {
     tasks: Task[];
     designers: Designer[];
-    requesters: string[];
+    requesters: Requester[];
 }
 
 interface KpiCardProps {
@@ -187,7 +187,7 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
     const requesterMetrics = useMemo(() => {
         const map = new Map<string, { total: number, done: number, types: Record<string, number> }>();
 
-        requesters.forEach(r => map.set(r, { total: 0, done: 0, types: {} }));
+        requesters.forEach(r => map.set(r.name, { total: 0, done: 0, types: {} }));
 
         filteredTasks.forEach(t => {
             if (!map.has(t.requester)) return;

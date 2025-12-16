@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { X, Calendar, User, Link as LinkIcon, Clock, Send, ChevronDown } from 'lucide-react';
-import { Task, Priority, Status, Designer } from '../models';
+import { Task, Priority, Status, Designer, Requester } from '../models';
 
 interface TaskDetailModalProps {
     task: Task | null;
@@ -9,7 +9,7 @@ interface TaskDetailModalProps {
     onUpdate: (updates: Partial<Task>) => void;
     onDelete?: (taskId: string) => void;
     designers: Designer[];
-    requesters: string[];
+    requesters: Requester[];
 }
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose, onUpdate, onDelete, designers, requesters }) => {
@@ -187,7 +187,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                                             onChange={(e) => onUpdate({ requester: e.target.value })}
                                         >
                                             {requesters.map(r => (
-                                                <option key={r} value={r}>{r}</option>
+                                                <option key={r.id} value={r.name}>{r.name}</option>
                                             ))}
                                         </select>
                                         <User size={14} className="absolute left-3 top-3 text-text-secondary pointer-events-none" />

@@ -3,14 +3,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Wand2, Link as LinkIcon, Image as ImageIcon, Plus, Trash2, Calendar, User, Save, UploadCloud } from 'lucide-react';
 import { Button } from './Button';
 import { generateStructuredBrief } from '../services/geminiService';
-import { Task, Priority, TaskType, Designer } from '../models';
+import { Task, Priority, TaskType, Designer, Requester } from '../models';
 
 interface MagicBriefModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: (taskData: Partial<Task>) => void;
     designers: Designer[];
-    requesters: string[];
+    requesters: Requester[];
     activeSprint: string;
 }
 
@@ -43,7 +43,7 @@ export const MagicBriefModal: React.FC<MagicBriefModalProps> = ({ isOpen, onClos
             setFormData({
                 title: '',
                 description: '',
-                requester: requesters[0] || '',
+                requester: requesters[0]?.name || '',
                 manager: '',
                 sprint: activeSprint,
                 requestDate: new Date().toISOString().split('T')[0],
@@ -219,7 +219,7 @@ export const MagicBriefModal: React.FC<MagicBriefModalProps> = ({ isOpen, onClos
                                         >
                                             <option value="" disabled>Select Requester</option>
                                             {requesters.map(r => (
-                                                <option key={r} value={r}>{r}</option>
+                                                <option key={r.id} value={r.name}>{r.name}</option>
                                             ))}
                                         </select>
                                     </div>

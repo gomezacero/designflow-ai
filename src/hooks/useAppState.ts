@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Task, Status, Priority, TaskType, Designer, Sprint } from '../models';
+import { Task, Status, Priority, TaskType, Designer, Sprint, Requester } from '../models';
 import {
   INITIAL_TASKS,
   INITIAL_DESIGNERS,
@@ -14,7 +14,7 @@ interface UseAppStateReturn {
   tasks: Task[];
   deletedTasks: Task[];
   designers: Designer[];
-  requesters: string[];
+  requesters: Requester[];
   sprints: Sprint[];
   deletedSprints: Sprint[];
   activeSprint: string;
@@ -25,7 +25,7 @@ interface UseAppStateReturn {
 
   // Setters
   setDesigners: React.Dispatch<React.SetStateAction<Designer[]>>;
-  setRequesters: React.Dispatch<React.SetStateAction<string[]>>;
+  setRequesters: React.Dispatch<React.SetStateAction<Requester[]>>;
   setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
 
   // Handlers
@@ -50,7 +50,8 @@ interface UseAppStateReturn {
   handleUpdateDesigner: (id: string, updates: Partial<Designer>) => Promise<void>;
   handleDeleteDesigner: (id: string) => Promise<void>;
 
-  handleCreateRequester: (name: string) => Promise<void>;
+  handleCreateRequester: (requester: Partial<Requester>) => Promise<void>;
+  handleUpdateRequester: (id: string, updates: Partial<Requester>) => Promise<void>;
   handleDeleteRequester: (name: string) => Promise<void>;
 }
 
@@ -75,7 +76,7 @@ export const useAppState = (): UseAppStateReturn => {
   const [tasks, setTasks] = useState<Task[]>(useSupabase ? [] : INITIAL_TASKS);
   const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
   const [designers, setDesigners] = useState<Designer[]>(useSupabase ? [] : INITIAL_DESIGNERS);
-  const [requesters, setRequesters] = useState<string[]>(useSupabase ? [] : INITIAL_REQUESTERS);
+  const [requesters, setRequesters] = useState<Requester[]>(useSupabase ? [] : INITIAL_REQUESTERS.map((name, i) => ({ id: `r${i}`, name })));
   const [sprints, setSprints] = useState<Sprint[]>(useSupabase ? [] : INITIAL_SPRINTS);
   const [deletedSprints, setDeletedSprints] = useState<Sprint[]>([]);
   // Start loading if using Supabase (waiting for real data)
@@ -490,20 +491,44 @@ export const useAppState = (): UseAppStateReturn => {
    * Handlers for Requesters
    */
   const handleCreateRequester = useCallback(
-    async (name: string) => {
+    async (requesterData: Partial<Requester>) => {
       if (useSupabase) {
         try {
           setError(null);
-          const createdName = await api.createRequester(name);
+          const created = await api.createRequester(requesterData);
           setRequesters(prev => {
-            if (prev.includes(createdName)) return prev;
-            return [...prev, createdName];
+            if (prev.some(r => r.name === created.name)) return prev;
+            return [...prev, created];
           });
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to create requester');
         }
       } else {
-        setRequesters(prev => prev.includes(name) ? prev : [...prev, name]);
+        const newRequester: Requester = {
+          id: `r${Date.now()}`,
+          name: requesterData.name || '',
+          avatar: requesterData.avatar,
+          bio: requesterData.bio,
+          email: requesterData.email,
+        };
+        setRequesters(prev => prev.some(r => r.name === newRequester.name) ? prev : [...prev, newRequester]);
+      }
+    },
+    [useSupabase]
+  );
+
+  const handleUpdateRequester = useCallback(
+    async (id: string, updates: Partial<Requester>) => {
+      if (useSupabase) {
+        try {
+          setError(null);
+          const updated = await api.updateRequester(id, updates);
+          setRequesters(prev => prev.map(r => r.id === id ? updated : r));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to update requester');
+        }
+      } else {
+        setRequesters(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
       }
     },
     [useSupabase]
@@ -514,12 +539,12 @@ export const useAppState = (): UseAppStateReturn => {
       if (useSupabase) {
         try {
           await api.deleteRequester(name);
-          setRequesters(prev => prev.filter(r => r !== name));
+          setRequesters(prev => prev.filter(r => r.name !== name));
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to delete requester');
         }
       } else {
-        setRequesters(prev => prev.filter(r => r !== name));
+        setRequesters(prev => prev.filter(r => r.name !== name));
       }
     },
     [useSupabase]
@@ -551,6 +576,7 @@ export const useAppState = (): UseAppStateReturn => {
     handleUpdateDesigner,
     handleDeleteDesigner,
     handleCreateRequester,
+    handleUpdateRequester,
     handleDeleteRequester,
   };
 };

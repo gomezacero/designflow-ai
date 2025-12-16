@@ -86,16 +86,25 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          avatar: string | null;
+          bio: string | null;
+          email: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
+          avatar?: string | null;
+          bio?: string | null;
+          email?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
+          avatar?: string | null;
+          bio?: string | null;
+          email?: string | null;
           created_at?: string;
         };
         Relationships: [];

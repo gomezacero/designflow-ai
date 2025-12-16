@@ -48,6 +48,7 @@ function App() {
     handleDeleteDesigner,
     // Requester Handlers
     handleCreateRequester,
+    handleUpdateRequester,
     handleDeleteRequester,
     handleDeleteTask,
     handleRestoreTask,
@@ -186,6 +187,7 @@ function App() {
         onCreateDesigner={handleCreateDesigner}
         onDeleteDesigner={handleDeleteDesigner}
         onCreateRequester={handleCreateRequester}
+        onUpdateRequester={handleUpdateRequester}
         onDeleteRequester={handleDeleteRequester}
         onRestoreSprint={handleRestoreSprint}
         onRestoreTask={handleRestoreTask}

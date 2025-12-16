@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { X, Users, Calendar, Plus, Trash2, UserPlus, Archive, RotateCcw, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
-import { Designer, Sprint, Task } from '../models';
+import { Designer, Sprint, Task, Requester } from '../models';
 import { Button } from './Button';
 import { openDatePicker } from '../utils';
 
@@ -11,7 +11,7 @@ interface SettingsModalProps {
     onClose: () => void;
 
     designers: Designer[];
-    requesters: string[];
+    requesters: Requester[];
     sprints: Sprint[];
     deletedSprints: Sprint[];
     deletedTasks: Task[];
@@ -25,7 +25,8 @@ interface SettingsModalProps {
     onCreateDesigner: (designer: Partial<Designer>) => void;
     onDeleteDesigner: (id: string) => void;
 
-    onCreateRequester: (name: string) => void;
+    onCreateRequester: (requester: Partial<Requester>) => void;
+    onUpdateRequester: (id: string, updates: Partial<Requester>) => void;
     onDeleteRequester: (name: string) => void;
 
     onRestoreTask: (id: string) => void;
@@ -35,7 +36,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     isOpen, onClose, designers, requesters, sprints, deletedSprints, deletedTasks,
     onCreateSprint, onUpdateSprint, onDeleteSprint, onRestoreSprint,
     onCreateDesigner, onDeleteDesigner,
-    onCreateRequester, onDeleteRequester,
+    onCreateRequester, onUpdateRequester: _onUpdateRequester, onDeleteRequester,
     onRestoreTask
 }) => {
     const { theme, toggleTheme } = useTheme();
@@ -69,8 +70,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     const addRequester = () => {
         if (!newRequesterName.trim()) return;
-        if (!requesters.includes(newRequesterName)) {
-            onCreateRequester(newRequesterName);
+        if (!requesters.some(r => r.name === newRequesterName)) {
+            onCreateRequester({ name: newRequesterName });
         }
         setNewRequesterName('');
     };
@@ -208,14 +209,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                                     {requesters.map(req => (
-                                        <div key={req} className="flex items-center justify-between p-3 hover:bg-bg-surface-hover rounded-xl group border border-transparent hover:border-border-default transition-all">
+                                        <div key={req.id} className="flex items-center justify-between p-3 hover:bg-bg-surface-hover rounded-xl group border border-transparent hover:border-border-default transition-all">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
-                                                    {req.substring(0, 2).toUpperCase()}
-                                                </div>
-                                                <span className="text-sm font-semibold text-text-primary">{req}</span>
+                                                {req.avatar ? (
+                                                    <img src={req.avatar} alt={req.name} className="w-10 h-10 rounded-full bg-bg-canvas object-cover" />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
+                                                        {req.name.substring(0, 2).toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <span className="text-sm font-semibold text-text-primary">{req.name}</span>
                                             </div>
-                                            <button onClick={() => removeRequester(req)} className="text-gray-300 hover:text-red-500 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2" aria-label={`Remove ${req}`}>
+                                            <button onClick={() => removeRequester(req.name)} className="text-gray-300 hover:text-red-500 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2" aria-label={`Remove ${req.name}`}>
                                                 <Trash2 size={18} />
                                             </button>
                                         </div>
@@ -397,6 +402,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Task, Status, TaskType, Designer, Sprint } from '../models';
+import { Task, Status, TaskType, Designer, Sprint, Requester } from '../models';
 import { TaskCard } from './TaskCard';
 import { KanbanColumn } from './KanbanColumn';
 import { TaskDetailModal } from './TaskDetailModal';
@@ -12,7 +12,7 @@ interface DashboardProps {
     tasks: Task[];
     onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
     designers: Designer[];
-    requesters: string[];
+    requesters: Requester[];
     sprints: Sprint[];
     activeSprint?: string; // Made optional to match usage
     onTaskClick?: (task: Task) => void;
@@ -353,7 +353,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     onChange={e => setFilters({ ...filters, requester: e.target.value })}
                                 >
                                     <option value="">All Requesters</option>
-                                    {requesters.map(r => <option key={r} value={r}>{r}</option>)}
+                                    {requesters.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
                                 </select>
                             </div>
 
