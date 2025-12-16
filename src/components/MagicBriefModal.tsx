@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Wand2, Link as LinkIcon, Image as ImageIcon, Plus, Trash2, Calendar, User, Save, UploadCloud } from 'lucide-react';
 import { Button } from './Button';
+import { RichTextEditor } from './RichTextEditor';
 import { generateStructuredBrief } from '../services/geminiService';
 import { Task, Priority, TaskType, Designer, Requester } from '../models';
 
@@ -195,11 +195,11 @@ export const MagicBriefModal: React.FC<MagicBriefModalProps> = ({ isOpen, onClos
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-text-secondary mb-1.5">Description</label>
-                                    <textarea
-                                        className="w-full bg-bg-canvas border border-border-default rounded-xl px-4 py-3 text-sm text-text-primary focus:bg-bg-surface focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none h-32"
+                                    <RichTextEditor
+                                        value={formData.description || ''}
+                                        onChange={(val) => setFormData({ ...formData, description: val })}
                                         placeholder="Describe the deliverables in detail..."
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        className="h-32"
                                     />
                                 </div>
                             </div>
