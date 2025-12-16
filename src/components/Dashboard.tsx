@@ -398,11 +398,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 .filter(t => t.status === status)
                                 .sort((a, b) => {
                                     if (status !== Status.DONE) {
+                                        // First, sort by priority (Critical > High > Normal)
                                         const weightA = getPriorityWeight(a.priority);
                                         const weightB = getPriorityWeight(b.priority);
-                                        return weightB - weightA;
+                                        if (weightB !== weightA) {
+                                            return weightB - weightA;
+                                        }
+                                        // Then, sort by request date ascending (oldest first, newest at bottom)
+                                        return new Date(a.requestDate).getTime() - new Date(b.requestDate).getTime();
                                     }
-                                    return 0;
+                                    // For DONE tasks, sort by completion date (most recent first)
+                                    return new Date(b.completionDate || b.requestDate).getTime() - new Date(a.completionDate || a.requestDate).getTime();
                                 });
 
                             return (
