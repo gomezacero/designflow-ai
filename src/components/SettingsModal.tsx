@@ -33,7 +33,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
-    isOpen, onClose, designers, requesters, sprints, deletedSprints, deletedTasks,
+    isOpen, onClose, designers, requesters: _requesters, sprints, deletedSprints, deletedTasks,
     onCreateSprint, onUpdateSprint, onDeleteSprint, onRestoreSprint,
     onCreateDesigner, onDeleteDesigner,
     onCreateRequester, onUpdateRequester: _onUpdateRequester, onDeleteRequester,
@@ -51,6 +51,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         startDate: '',
         endDate: ''
     });
+
+    // Filter designers by role
+    // Users who set their role to "Designer" appear in Designers list
+    // Users who set their role to "Requester" appear in Requesters list
+    const designersList = designers.filter(d => d.role === 'Designer' || !d.role);
+    const requestersList = designers.filter(d => d.role === 'Requester');
 
     if (!isOpen) return null;
 
@@ -70,7 +76,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
     const addRequester = () => {
         if (!newRequesterName.trim()) return;
-        if (!requesters.some(r => r.name === newRequesterName)) {
+        if (!requestersList.some(r => r.name === newRequesterName)) {
             onCreateRequester({ name: newRequesterName });
         }
         setNewRequesterName('');
@@ -168,7 +174,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 </div>
 
                                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                                    {designers.map(designer => (
+                                    {designersList.map(designer => (
                                         <div key={designer.id} className="flex items-center justify-between p-3 hover:bg-bg-surface-hover rounded-xl group border border-transparent hover:border-border-default transition-all">
                                             <div className="flex items-center gap-3">
                                                 {designer.avatar ? (
@@ -208,7 +214,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 </div>
 
                                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                                    {requesters.map(req => (
+                                    {requestersList.map(req => (
                                         <div key={req.id} className="flex items-center justify-between p-3 hover:bg-bg-surface-hover rounded-xl group border border-transparent hover:border-border-default transition-all">
                                             <div className="flex items-center gap-3">
                                                 {req.avatar ? (

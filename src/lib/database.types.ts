@@ -23,6 +23,8 @@ export interface Database {
           email: string | null;
           user_id: string | null;
           theme: string | null;
+          role: string | null;
+          bio: string | null;
           created_at: string;
         };
         Insert: {
@@ -32,6 +34,8 @@ export interface Database {
           email?: string | null;
           user_id?: string | null;
           theme?: string | null;
+          role?: string | null;
+          bio?: string | null;
           created_at?: string;
         };
         Update: {
@@ -41,6 +45,8 @@ export interface Database {
           email?: string | null;
           user_id?: string | null;
           theme?: string | null;
+          role?: string | null;
+          bio?: string | null;
           created_at?: string;
         };
         Relationships: [];

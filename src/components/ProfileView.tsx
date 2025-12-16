@@ -130,13 +130,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ user, onUpdateProfile 
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Role / Title</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         disabled={!isEditing}
                                         value={formData.role}
                                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                        className="w-full bg-bg-canvas border border-border-default rounded-xl px-4 py-3 text-sm font-medium text-text-primary focus:bg-bg-surface focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-                                    />
+                                        className="w-full bg-bg-canvas border border-border-default rounded-xl px-4 py-3 text-sm font-medium text-text-primary focus:bg-bg-surface focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all disabled:opacity-70 disabled:cursor-not-allowed appearance-none cursor-pointer"
+                                    >
+                                        <option value="Designer">Designer</option>
+                                        <option value="Requester">Requester</option>
+                                    </select>
                                 </div>
                             </div>
 
