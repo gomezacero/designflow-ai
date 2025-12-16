@@ -44,21 +44,22 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         // localStorage is set in setTheme, but for initial load handled by state init.
     }, [theme]);
 
-    // Fetch theme from DB on mount
+    // Fetch theme from DB on mount - REMOVED to avoid redundant queries and 400 errors.
+    // The theme is now synced via the user profile in App.tsx
+    /*
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session?.user) {
                 supabase.from('designers').select('theme').eq('user_id', session.user.id).single().then(({ data }) => {
                     if (data?.theme && (data.theme === 'light' || data.theme === 'dark')) {
                         setThemeState(data.theme as Theme);
-                        // Don't call setTheme here to avoid loop/re-sync, just update state.
-                        // But we should update localStorage too? Yes.
                         localStorage.setItem('theme', data.theme);
                     }
                 });
             }
         });
     }, []);
+    */
 
     const toggleTheme = () => {
         setTheme(theme === 'light' ? 'dark' : 'light');
