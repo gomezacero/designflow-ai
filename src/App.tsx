@@ -56,6 +56,10 @@ function App() {
     refreshData,
   } = useAppState();
 
+  // State for showing loading when refreshing data (e.g., after role change)
+  // IMPORTANT: Must be before any early returns to comply with Rules of Hooks
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   // Wrappers to inject user ID
   const onDeleteSprint = (id: string) => {
     if (user?.id) handleDeleteSprint(id, user.id);
@@ -87,9 +91,6 @@ function App() {
     // preventing the internal hook state from overriding the event detection
     return <LoginScreen isRecoveryMode={isPasswordRecovery} />;
   }
-
-  // State for showing loading when refreshing data (e.g., after role change)
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // --- Render Main App ---
   return (
