@@ -34,6 +34,7 @@ function App() {
     sprints,
     deletedSprints,
     activeSprint,
+    isLoading: isDataLoading,
 
     handleCreateTask,
     handleUpdateTask,
@@ -117,36 +118,48 @@ function App() {
 
       {/* Main Content - Full Width Adaptable */}
       <main className="flex-1 min-w-0 transition-all duration-300 w-full h-screen overflow-hidden">
-        {currentView === 'dashboard' && (
-          <Dashboard
-            tasks={tasks}
-            onUpdateTask={handleUpdateTask}
-            designers={designers}
-            requesters={requesters}
-            sprints={sprints}
-            onDeleteTask={onDeleteTask}
-          />
-        )}
-        {currentView === 'sprints' && (
-          <SprintsView
-            sprints={sprints}
-            tasks={tasks}
-            onDeleteSprint={onDeleteSprint}
-            onDeleteTask={onDeleteTask}
-          />
-        )}
-        {currentView === 'profile' && user && (
-          <ProfileView
-            user={user}
-            onUpdateProfile={updateProfile}
-          />
-        )}
-        {currentView === 'data' && (
-          <DataView
-            tasks={tasks}
-            designers={designers}
-            requesters={requesters}
-          />
+        {/* Show loading spinner while fetching app data */}
+        {isDataLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+              <p className="text-text-secondary text-sm">Loading your workspace...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {currentView === 'dashboard' && (
+              <Dashboard
+                tasks={tasks}
+                onUpdateTask={handleUpdateTask}
+                designers={designers}
+                requesters={requesters}
+                sprints={sprints}
+                onDeleteTask={onDeleteTask}
+              />
+            )}
+            {currentView === 'sprints' && (
+              <SprintsView
+                sprints={sprints}
+                tasks={tasks}
+                onDeleteSprint={onDeleteSprint}
+                onDeleteTask={onDeleteTask}
+              />
+            )}
+            {currentView === 'profile' && user && (
+              <ProfileView
+                user={user}
+                onUpdateProfile={updateProfile}
+              />
+            )}
+            {currentView === 'data' && (
+              <DataView
+                tasks={tasks}
+                designers={designers}
+                requesters={requesters}
+              />
+            )}
+          </>
         )}
       </main>
 

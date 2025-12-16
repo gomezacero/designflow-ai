@@ -68,16 +68,19 @@ function isSupabaseConfigured(): boolean {
  * Uses Supabase for persistence when configured, falls back to local state
  */
 export const useAppState = (): UseAppStateReturn => {
-  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
-  const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
-  const [designers, setDesigners] = useState<Designer[]>(INITIAL_DESIGNERS);
-  const [requesters, setRequesters] = useState<string[]>(INITIAL_REQUESTERS);
-  const [sprints, setSprints] = useState<Sprint[]>(INITIAL_SPRINTS);
-  const [deletedSprints, setDeletedSprints] = useState<Sprint[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const useSupabase = isSupabaseConfigured();
+
+  // Initialize with empty arrays when using Supabase (real data will be fetched)
+  // Use mock data only when Supabase is not configured (local dev fallback)
+  const [tasks, setTasks] = useState<Task[]>(useSupabase ? [] : INITIAL_TASKS);
+  const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
+  const [designers, setDesigners] = useState<Designer[]>(useSupabase ? [] : INITIAL_DESIGNERS);
+  const [requesters, setRequesters] = useState<string[]>(useSupabase ? [] : INITIAL_REQUESTERS);
+  const [sprints, setSprints] = useState<Sprint[]>(useSupabase ? [] : INITIAL_SPRINTS);
+  const [deletedSprints, setDeletedSprints] = useState<Sprint[]>([]);
+  // Start loading if using Supabase (waiting for real data)
+  const [isLoading, setIsLoading] = useState(useSupabase);
+  const [error, setError] = useState<string | null>(null);
 
   const activeSprint = useMemo(
     () => sprints.find(s => s.isActive)?.name || 'Backlog',
