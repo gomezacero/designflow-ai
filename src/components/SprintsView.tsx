@@ -79,8 +79,8 @@ export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTask
     return (
         <div className="p-6 space-y-6 w-full h-full overflow-y-auto custom-scrollbar">
             <header className="mb-8">
-                <h1 className="text-3xl font-bold text-ios-text tracking-tight mb-2">Sprints Overview</h1>
-                <p className="text-gray-500">Manage and track progress across all development cycles.</p>
+                <h1 className="text-3xl font-bold text-text-primary tracking-tight mb-2">Sprints Overview</h1>
+                <p className="text-text-secondary">Manage and track progress across all development cycles.</p>
             </header>
 
             <div className="space-y-4">
@@ -93,33 +93,33 @@ export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTask
 
                     // Determine sprint status color
                     const statusColor = sprint.isActive
-                        ? 'bg-blue-100 text-blue-700 border-blue-200'
+                        ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800'
                         : new Date(sprint.endDate) < new Date()
-                            ? 'bg-gray-100 text-gray-600 border-gray-200' // Past
-                            : 'bg-purple-100 text-purple-700 border-purple-200'; // Future
+                            ? 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700' // Past
+                            : 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800'; // Future
 
                     const statusLabel = sprint.isActive ? 'Active' : new Date(sprint.endDate) < new Date() ? 'Completed' : 'Planned';
 
                     return (
-                        <div key={sprint.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden transition-all duration-300">
+                        <div key={sprint.id} className="bg-bg-surface rounded-2xl border border-border-default shadow-sm overflow-hidden transition-all duration-300">
 
                             {/* Sprint Header (Clickable) */}
                             <div
                                 onClick={() => toggleSprint(sprint.id)}
-                                className="p-5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                                className="p-5 flex items-center justify-between cursor-pointer hover:bg-bg-surface-hover transition-colors"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`p-2 rounded-full ${isExpanded ? 'bg-gray-200' : 'bg-gray-100'} transition-colors`}>
-                                        {isExpanded ? <ChevronDown size={20} className="text-gray-600" /> : <ChevronRight size={20} className="text-gray-400" />}
+                                    <div className={`p-2 rounded-full ${isExpanded ? 'bg-bg-surface-hover' : 'bg-bg-canvas'} transition-colors`}>
+                                        {isExpanded ? <ChevronDown size={20} className="text-text-secondary" /> : <ChevronRight size={20} className="text-text-secondary" />}
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-3 mb-1">
-                                            <h3 className="text-lg font-bold text-gray-900">{sprint.name}</h3>
+                                            <h3 className="text-lg font-bold text-text-primary">{sprint.name}</h3>
                                             <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${statusColor}`}>
                                                 {statusLabel}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-4 text-sm text-gray-500 font-medium">
+                                        <div className="flex items-center gap-4 text-sm text-text-secondary font-medium">
                                             <span className="flex items-center gap-1.5">
                                                 <Calendar size={14} />
                                                 {sprint.startDate} - {sprint.endDate}
@@ -133,13 +133,13 @@ export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTask
                                 <div className="flex items-center gap-6">
                                     {/* Progress Bar (Mini) */}
                                     <div className="hidden md:flex flex-col items-end gap-1 w-48">
-                                        <div className="flex justify-between w-full text-xs font-semibold text-gray-500">
+                                        <div className="flex justify-between w-full text-xs font-semibold text-text-secondary">
                                             <span>Progress</span>
                                             <span>{progress}%</span>
                                         </div>
-                                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="w-full h-2 bg-bg-canvas rounded-full overflow-hidden border border-border-default">
                                             <div
-                                                className={`h-full rounded-full transition-all duration-500 ${sprint.isActive ? 'bg-blue-500' : 'bg-gray-400'}`}
+                                                className={`h-full rounded-full transition-all duration-500 ${sprint.isActive ? 'bg-blue-500' : 'bg-gray-400 dark:bg-gray-600'}`}
                                                 style={{ width: `${progress}%` }}
                                             />
                                         </div>
@@ -154,7 +154,7 @@ export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTask
                                                     onDeleteSprint(sprint.id);
                                                 }
                                             }}
-                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                            className="p-2 text-text-secondary hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
                                             title="Delete Sprint"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -167,7 +167,7 @@ export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTask
 
                             {/* Sprint Content (Accordion) */}
                             {isExpanded && (
-                                <div className="border-t border-gray-100 bg-gray-50/50 p-5 animate-slideDown">
+                                <div className="border-t border-border-default bg-bg-canvas/50 p-5 animate-slideDown">
                                     {sprintTasks.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                             <DndContext
@@ -207,7 +207,7 @@ export const SprintsView: React.FC<SprintsViewProps> = ({ sprints, tasks, onTask
                                             </DndContext>
                                         </div>
                                     ) : (
-                                        <div className="text-center py-8 text-gray-400 text-sm italic">
+                                        <div className="text-center py-8 text-text-secondary text-sm italic">
                                             No tasks assigned to this sprint yet.
                                         </div>
                                     )}

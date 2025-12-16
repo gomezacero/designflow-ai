@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Task, Status, TaskType, Designer, Sprint } from '../models';
+import { Task, Status, TaskType, Designer, Sprint, Requester } from '../models';
 import { TaskCard } from './TaskCard';
 import { KanbanColumn } from './KanbanColumn';
 import { TaskDetailModal } from './TaskDetailModal';
@@ -12,7 +12,7 @@ interface DashboardProps {
     tasks: Task[];
     onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
     designers: Designer[];
-    requesters: string[];
+    requesters: Requester[];
     sprints: Sprint[];
     activeSprint?: string; // Made optional to match usage
     onTaskClick?: (task: Task) => void;
@@ -212,38 +212,38 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {/* Header & Metrics */}
             <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-2 pt-10 md:pt-0">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-ios-text tracking-tight mb-1">Good morning, Team.</h1>
-                    <p className="text-sm text-ios-secondary">
+                    <h1 className="text-2xl md:text-3xl font-bold text-text-primary tracking-tight mb-1">Good morning, Team.</h1>
+                    <p className="text-sm text-text-secondary">
                         {activeSprint ? `Working on ${activeSprint.name} (${activeSprint.startDate} - ${activeSprint.endDate})` : 'No active sprint selected.'}
                     </p>
                 </div>
 
                 <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
-                    <div className="bg-white/60 backdrop-blur-md px-5 py-3 rounded-xl shadow-sm border border-white/50 min-w-[140px] flex-shrink-0">
-                        <div className="text-[11px] text-ios-secondary font-bold uppercase tracking-wider">Velocity</div>
-                        <div className="text-2xl font-bold text-ios-text">{velocity} <span className="text-sm font-normal text-gray-400">pts</span></div>
+                    <div className="bg-bg-surface/60 backdrop-blur-md px-5 py-3 rounded-xl shadow-sm border border-border-default min-w-[140px] flex-shrink-0">
+                        <div className="text-[11px] text-text-secondary font-bold uppercase tracking-wider">Velocity</div>
+                        <div className="text-2xl font-bold text-text-primary">{velocity} <span className="text-sm font-normal text-text-secondary">pts</span></div>
                     </div>
-                    <div className="bg-white/60 backdrop-blur-md px-5 py-3 rounded-xl shadow-sm border border-white/50 min-w-[140px] flex-shrink-0">
-                        <div className="text-[11px] text-ios-secondary font-bold uppercase tracking-wider">Pending</div>
-                        <div className="text-2xl font-bold text-ios-text">{pending} <span className="text-sm font-normal text-gray-400">tasks</span></div>
+                    <div className="bg-bg-surface/60 backdrop-blur-md px-5 py-3 rounded-xl shadow-sm border border-border-default min-w-[140px] flex-shrink-0">
+                        <div className="text-[11px] text-text-secondary font-bold uppercase tracking-wider">Pending</div>
+                        <div className="text-2xl font-bold text-text-primary">{pending} <span className="text-sm font-normal text-text-secondary">tasks</span></div>
                     </div>
                 </div>
             </header>
 
             {/* SEARCH & CONTROLS BAR */}
-            <div className="flex flex-col gap-3 sticky top-0 z-30 bg-[#F5F5F7]/95 backdrop-blur-sm py-2 -mx-4 px-4 md:-mx-6 md:px-6 shadow-sm md:shadow-none">
+            <div className="flex flex-col gap-3 sticky top-0 z-30 bg-bg-canvas/95 backdrop-blur-sm py-2 -mx-4 px-4 md:-mx-6 md:px-6 shadow-sm md:shadow-none transition-colors">
                 <div className="flex flex-col md:flex-row gap-3">
                     {/* Search Input */}
                     <div className="relative flex-1 group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-blue-500 transition-colors" size={18} />
                         <input
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 md:py-2.5 text-base md:text-sm rounded-xl border-none bg-white shadow-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-gray-400"
+                            className="w-full pl-10 pr-4 py-3 md:py-2.5 text-base md:text-sm rounded-xl border-none bg-bg-surface shadow-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-text-secondary text-text-primary"
                             placeholder="Search tasks..."
                         />
                         {searchQuery && (
-                            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600" aria-label="Clear search">
+                            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-text-secondary hover:text-text-primary" aria-label="Clear search">
                                 <X size={16} />
                             </button>
                         )}
@@ -253,24 +253,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0">
                         <button
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center gap-2 px-4 py-3 md:py-2 text-sm rounded-xl font-medium transition-all whitespace-nowrap ${showFilters ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-600 shadow-sm hover:bg-gray-50'}`}
+                            className={`flex items-center gap-2 px-4 py-3 md:py-2 text-sm rounded-xl font-medium transition-all whitespace-nowrap ${showFilters ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'bg-bg-surface text-text-secondary border border-border-default shadow-sm hover:bg-bg-surface-hover hover:text-text-primary'}`}
                         >
                             <Filter size={18} />
                             <span>Filters</span>
                             {Object.values(filters).some(Boolean) && <div className="w-2 h-2 rounded-full bg-red-400 border border-white" />}
                         </button>
 
-                        <div className="flex items-center bg-white p-1 rounded-xl shadow-sm border border-gray-100 whitespace-nowrap">
+                        <div className="flex items-center bg-bg-surface p-1 rounded-xl shadow-sm border border-border-default whitespace-nowrap">
                             <button
                                 onClick={() => setViewMode('board')}
-                                className={`p-2.5 md:p-2 rounded-lg transition-all ${viewMode === 'board' ? 'bg-gray-100 text-black' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`p-2.5 md:p-2 rounded-lg transition-all ${viewMode === 'board' ? 'bg-bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
                                 title="Board View"
                             >
                                 <Kanban size={20} className="md:w-4 md:h-4" />
                             </button>
                             <button
                                 onClick={() => setViewMode('list')}
-                                className={`p-2.5 md:p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-black' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`p-2.5 md:p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-bg-canvas text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
                                 title="List View"
                             >
                                 <ListIcon size={20} className="md:w-4 md:h-4" />
@@ -281,15 +281,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                 {/* ADVANCED FILTER PANEL */}
                 {showFilters && (
-                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 animate-slideDown">
+                    <div className="bg-bg-surface p-5 rounded-xl shadow-sm border border-border-default animate-slideDown">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                             {/* Sprint Filter */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <Calendar size={12} /> Sprint
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.sprint}
                                     onChange={e => setFilters({ ...filters, sprint: e.target.value })}
                                 >
@@ -300,26 +300,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                             {/* Date Range */}
                             <div className="space-y-1.5 lg:col-span-2">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <Calendar size={12} /> Date Range
                                 </label>
                                 <div className="flex flex-col sm:flex-row gap-2">
                                     <div className="relative flex-1">
-                                        <Calendar size={14} className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
+                                        <Calendar size={14} className="absolute left-3 top-3 text-text-secondary pointer-events-none" />
                                         <input
                                             type="date"
                                             onClick={openDatePicker}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer"
+                                            className="w-full bg-bg-canvas border border-border-default rounded-xl pl-9 pr-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer transition-colors"
                                             value={filters.dateStart}
                                             onChange={e => setFilters({ ...filters, dateStart: e.target.value })}
                                         />
                                     </div>
                                     <div className="relative flex-1">
-                                        <Calendar size={14} className="absolute left-3 top-3 text-gray-400 pointer-events-none" />
+                                        <Calendar size={14} className="absolute left-3 top-3 text-text-secondary pointer-events-none" />
                                         <input
                                             type="date"
                                             onClick={openDatePicker}
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer"
+                                            className="w-full bg-bg-canvas border border-border-default rounded-xl pl-9 pr-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 cursor-pointer transition-colors"
                                             value={filters.dateEnd}
                                             onChange={e => setFilters({ ...filters, dateEnd: e.target.value })}
                                         />
@@ -329,11 +329,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                             {/* Designer */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <User size={12} /> Designer
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.designerId}
                                     onChange={e => setFilters({ ...filters, designerId: e.target.value })}
                                 >
@@ -344,26 +344,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                             {/* Requester */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <User size={12} /> Requester
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.requester}
                                     onChange={e => setFilters({ ...filters, requester: e.target.value })}
                                 >
                                     <option value="">All Requesters</option>
-                                    {requesters.map(r => <option key={r} value={r}>{r}</option>)}
+                                    {requesters.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
                                 </select>
                             </div>
 
                             {/* Type */}
                             <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                                <label className="text-[11px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1.5">
                                     <Tag size={12} /> Type
                                 </label>
                                 <select
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
+                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-3 py-2.5 text-sm text-text-primary outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-colors"
                                     value={filters.type}
                                     onChange={e => setFilters({ ...filters, type: e.target.value })}
                                 >
@@ -398,11 +398,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 .filter(t => t.status === status)
                                 .sort((a, b) => {
                                     if (status !== Status.DONE) {
+                                        // First, sort by priority (Critical > High > Normal)
                                         const weightA = getPriorityWeight(a.priority);
                                         const weightB = getPriorityWeight(b.priority);
-                                        return weightB - weightA;
+                                        if (weightB !== weightA) {
+                                            return weightB - weightA;
+                                        }
+                                        // Then, sort by request date ascending (oldest first, newest at bottom)
+                                        return new Date(a.requestDate).getTime() - new Date(b.requestDate).getTime();
                                     }
-                                    return 0;
+                                    // For DONE tasks, sort by completion date (most recent first)
+                                    return new Date(b.completionDate || b.requestDate).getTime() - new Date(a.completionDate || a.requestDate).getTime();
                                 });
 
                             return (
@@ -431,51 +437,51 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </DragOverlay>
                 </DndContext>
             ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-12 w-full">
+                <div className="bg-bg-surface rounded-2xl shadow-sm border border-border-default overflow-hidden mb-12 w-full">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left min-w-[800px]">
-                            <thead className="bg-gray-50 border-b border-gray-100">
+                            <thead className="bg-bg-canvas border-b border-border-default">
                                 <tr>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Requester</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Designer</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Due</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Title</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Requester</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Designer</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-xs font-bold text-text-secondary uppercase tracking-wider">Due</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-border-default">
                                 {visibleTasks.map(task => (
                                     <tr
                                         key={task.id}
                                         onClick={() => setSelectedTask(task)}
-                                        className="hover:bg-blue-50/50 cursor-pointer transition-colors"
+                                        className="hover:bg-bg-surface-hover cursor-pointer transition-colors"
                                     >
                                         <td className="px-6 py-4">
-                                            <div className="font-semibold text-sm text-gray-900">{task.title}</div>
-                                            <div className="text-xs text-gray-500 mt-0.5">{task.type}</div>
+                                            <div className="font-semibold text-sm text-text-primary">{task.title}</div>
+                                            <div className="text-xs text-text-secondary mt-0.5">{task.type}</div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-sm text-gray-700">{task.requester}</div>
+                                            <div className="text-sm text-text-primary">{task.requester}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             {task.designer ? (
                                                 <div className="flex items-center gap-3">
                                                     <img src={task.designer.avatar} alt={task.designer.name} className="w-6 h-6 rounded-full" />
-                                                    <span className="text-sm text-gray-700 font-medium">{task.designer.name}</span>
+                                                    <span className="text-sm text-text-primary font-medium">{task.designer.name}</span>
                                                 </div>
                                             ) : (
-                                                <span className="text-sm text-gray-400 italic">Unassigned</span>
+                                                <span className="text-sm text-text-secondary italic">Unassigned</span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold
-                                        ${task.status === Status.DONE ? 'bg-green-100 text-green-800' :
-                                                    task.status === Status.IN_PROGRESS ? 'bg-blue-100 text-blue-800' :
-                                                        'bg-gray-100 text-gray-800'}`}>
+                                        ${task.status === Status.DONE ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                                                    task.status === Status.IN_PROGRESS ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                                                        'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'}`}>
                                                 {task.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600 font-medium">
+                                        <td className="px-6 py-4 text-sm text-text-secondary font-medium">
                                             {task.dueDate}
                                         </td>
                                     </tr>
@@ -493,18 +499,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="mt-8 mb-8">
                         <button
                             onClick={() => setIsArchiveOpen(!isArchiveOpen)}
-                            className="w-full bg-gray-100 hover:bg-white hover:shadow-sm border border-gray-200/50 rounded-2xl p-4 flex items-center justify-between transition-all duration-200 group"
+                            className="w-full bg-bg-surface hover:bg-bg-surface-hover hover:shadow-sm border border-border-default rounded-2xl p-4 flex items-center justify-between transition-all duration-200 group"
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-gray-200 text-gray-500 rounded-xl flex items-center justify-center group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                                <div className="w-10 h-10 bg-bg-canvas text-text-secondary rounded-xl flex items-center justify-center group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                                     <Archive size={20} />
                                 </div>
                                 <div className="text-left">
-                                    <h3 className="text-sm font-bold text-gray-900">Project Archive</h3>
-                                    <p className="text-xs text-gray-500 font-medium">{archivedTasks.length} older tasks completed</p>
+                                    <h3 className="text-sm font-bold text-text-primary">Project Archive</h3>
+                                    <p className="text-xs text-text-secondary font-medium">{archivedTasks.length} older tasks completed</p>
                                 </div>
                             </div>
-                            {isArchiveOpen ? <ChevronUp className="text-gray-400" /> : <ChevronDown className="text-gray-400" />}
+                            {isArchiveOpen ? <ChevronUp className="text-text-secondary" /> : <ChevronDown className="text-text-secondary" />}
                         </button>
 
                         {isArchiveOpen && (

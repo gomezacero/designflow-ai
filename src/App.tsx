@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DataView } from './components/DataView';
@@ -34,6 +35,7 @@ function App() {
     sprints,
     deletedSprints,
     activeSprint,
+    isLoading: isDataLoading,
 
     handleCreateTask,
     handleUpdateTask,
@@ -47,9 +49,11 @@ function App() {
     handleDeleteDesigner,
     // Requester Handlers
     handleCreateRequester,
+    handleUpdateRequester,
     handleDeleteRequester,
     handleDeleteTask,
     handleRestoreTask,
+    refreshData,
   } = useAppState();
 
   // Wrappers to inject user ID
@@ -84,9 +88,32 @@ function App() {
     return <LoginScreen isRecoveryMode={isPasswordRecovery} />;
   }
 
+  // State for showing loading when refreshing data (e.g., after role change)
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   // --- Render Main App ---
   return (
-    <div className="min-h-screen bg-[#F5F5F7] font-sans text-ios-text selection:bg-blue-100 selection:text-blue-900 flex animate-fadeIn">
+    <div className="min-h-screen bg-bg-canvas font-sans text-text-primary selection:bg-blue-100 selection:text-blue-900 flex animate-fadeIn transition-colors duration-300">
+
+      {/* Full-screen Loading Overlay - Blocks ALL interactions during initial load */}
+      {isDataLoading && (
+        <div className="fixed inset-0 z-[100] bg-bg-canvas flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-text-secondary text-sm font-medium">Loading your workspace...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Refresh Overlay - Shows when updating profile/refreshing data */}
+      {isRefreshing && (
+        <div className="fixed inset-0 z-[90] bg-bg-canvas/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 bg-bg-surface p-8 rounded-2xl shadow-lg border border-border-default">
+            <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <p className="text-text-primary text-sm font-medium">Updating...</p>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu Button */}
       <button
@@ -138,7 +165,17 @@ function App() {
         {currentView === 'profile' && user && (
           <ProfileView
             user={user}
-            onUpdateProfile={updateProfile}
+            onUpdateProfile={async (updates) => {
+              if (updates.role) {
+                setIsRefreshing(true);
+              }
+              await updateProfile(updates);
+              // Refresh designers list to reflect role changes immediately
+              if (updates.role) {
+                await refreshData();
+                setIsRefreshing(false);
+              }
+            }}
           />
         )}
         {currentView === 'data' && (
@@ -173,6 +210,7 @@ function App() {
         onCreateDesigner={handleCreateDesigner}
         onDeleteDesigner={handleDeleteDesigner}
         onCreateRequester={handleCreateRequester}
+        onUpdateRequester={handleUpdateRequester}
         onDeleteRequester={handleDeleteRequester}
         onRestoreSprint={handleRestoreSprint}
         onRestoreTask={handleRestoreTask}

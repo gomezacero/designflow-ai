@@ -10,6 +10,9 @@ function mapDesignerRowToDesigner(row: DesignerRow): Designer {
     id: row.id,
     name: row.name,
     avatar: row.avatar ?? '',
+    role: row.role ?? 'Designer',
+    bio: row.bio ?? '',
+    email: row.email ?? '',
   };
 }
 

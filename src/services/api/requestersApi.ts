@@ -1,13 +1,6 @@
 import { supabase } from '@/lib/supabase';
-import type { RequesterRow, RequesterInsert } from '@/lib/database.types';
-
-/**
- * Requester model (simple name-based)
- */
-export interface Requester {
-  id: string;
-  name: string;
-}
+import type { RequesterRow, RequesterInsert, RequesterUpdate } from '@/lib/database.types';
+import type { Requester } from '@/models';
 
 /**
  * Maps a database requester row to the app Requester model
@@ -16,24 +9,27 @@ function mapRequesterRowToRequester(row: RequesterRow): Requester {
   return {
     id: row.id,
     name: row.name,
+    avatar: row.avatar ?? undefined,
+    bio: row.bio ?? undefined,
+    email: row.email ?? undefined,
   };
 }
 
 /**
- * Fetches all requesters from the database
+ * Fetches all requesters from the database (names only - legacy)
  * @returns Array of requester names
  */
-export async function getRequesters(): Promise<string[]> {
+export async function getRequesterNames(): Promise<string[]> {
   const { data, error } = await supabase
     .from('requesters')
-    .select('*')
+    .select('name')
     .order('name', { ascending: true });
 
   if (error) {
     throw new Error(`Failed to fetch requesters: ${error.message}`);
   }
 
-  const rows = (data ?? []) as RequesterRow[];
+  const rows = (data ?? []) as { name: string }[];
   return rows.map((row) => row.name);
 }
 
@@ -41,7 +37,7 @@ export async function getRequesters(): Promise<string[]> {
  * Fetches all requesters with full data
  * @returns Array of requester objects
  */
-export async function getRequestersFull(): Promise<Requester[]> {
+export async function getRequesters(): Promise<Requester[]> {
   const { data, error } = await supabase
     .from('requesters')
     .select('*')
@@ -57,11 +53,16 @@ export async function getRequestersFull(): Promise<Requester[]> {
 
 /**
  * Creates a new requester
- * @param name - Requester name
- * @returns Created requester name
+ * @param requesterData - Requester data
+ * @returns Created requester
  */
-export async function createRequester(name: string): Promise<string> {
-  const insertData: RequesterInsert = { name };
+export async function createRequester(requesterData: Partial<Requester>): Promise<Requester> {
+  const insertData: RequesterInsert = {
+    name: requesterData.name ?? '',
+    avatar: requesterData.avatar ?? null,
+    bio: requesterData.bio ?? null,
+    email: requesterData.email ?? null,
+  };
 
   const { data, error } = await supabase
     .from('requesters')
@@ -70,37 +71,49 @@ export async function createRequester(name: string): Promise<string> {
     .single();
 
   if (error) {
-    // If it's a unique constraint violation, the requester already exists
+    // If it's a unique constraint violation, fetch the existing one
     if (error.code === '23505') {
-      return name;
+      const existing = await supabase
+        .from('requesters')
+        .select('*')
+        .eq('name', requesterData.name ?? '')
+        .single();
+      if (existing.data) {
+        return mapRequesterRowToRequester(existing.data as RequesterRow);
+      }
     }
     throw new Error(`Failed to create requester: ${error.message}`);
   }
 
-  return (data as RequesterRow).name;
+  return mapRequesterRowToRequester(data as RequesterRow);
 }
 
 /**
- * Creates multiple requesters at once
- * @param names - Array of requester names
- * @returns Array of created/existing requester names
+ * Updates a requester by ID
+ * @param id - Requester ID
+ * @param updates - Fields to update
+ * @returns Updated requester
  */
-export async function createRequesters(names: string[]): Promise<string[]> {
-  const uniqueNames = [...new Set(names.filter((n) => n.trim()))];
+export async function updateRequester(id: string, updates: Partial<Requester>): Promise<Requester> {
+  const updateData: RequesterUpdate = {};
 
-  if (uniqueNames.length === 0) return [];
+  if (updates.name !== undefined) updateData.name = updates.name;
+  if (updates.avatar !== undefined) updateData.avatar = updates.avatar;
+  if (updates.bio !== undefined) updateData.bio = updates.bio;
+  if (updates.email !== undefined) updateData.email = updates.email;
 
-  const insertData = uniqueNames.map((name) => ({ name }));
-
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('requesters')
-    .upsert(insertData as never, { onConflict: 'name', ignoreDuplicates: true });
+    .update(updateData as never)
+    .eq('id', id)
+    .select()
+    .single();
 
   if (error) {
-    throw new Error(`Failed to create requesters: ${error.message}`);
+    throw new Error(`Failed to update requester: ${error.message}`);
   }
 
-  return uniqueNames;
+  return mapRequesterRowToRequester(data as RequesterRow);
 }
 
 /**

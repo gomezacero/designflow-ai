@@ -22,6 +22,9 @@ export interface Database {
           avatar: string | null;
           email: string | null;
           user_id: string | null;
+          theme: string | null;
+          role: string | null;
+          bio: string | null;
           created_at: string;
         };
         Insert: {
@@ -30,6 +33,9 @@ export interface Database {
           avatar?: string | null;
           email?: string | null;
           user_id?: string | null;
+          theme?: string | null;
+          role?: string | null;
+          bio?: string | null;
           created_at?: string;
         };
         Update: {
@@ -38,6 +44,9 @@ export interface Database {
           avatar?: string | null;
           email?: string | null;
           user_id?: string | null;
+          theme?: string | null;
+          role?: string | null;
+          bio?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -83,16 +92,25 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          avatar: string | null;
+          bio: string | null;
+          email: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
+          avatar?: string | null;
+          bio?: string | null;
+          email?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
+          avatar?: string | null;
+          bio?: string | null;
+          email?: string | null;
           created_at?: string;
         };
         Relationships: [];

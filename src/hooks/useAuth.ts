@@ -9,6 +9,7 @@ export interface User {
   avatar: string;
   role: string;
   bio: string;
+  theme?: 'light' | 'dark';
 }
 
 interface UseAuthReturn {
@@ -50,8 +51,9 @@ export const useAuth = (): UseAuthReturn => {
           name: profile.name,
           email: profile.email || email || '',
           avatar: profile.avatar || '',
-          role: 'Designer',
-          bio: 'Ready to design.'
+          role: profile.role || 'Designer',
+          bio: profile.bio || '',
+          theme: profile.theme as 'light' | 'dark',
         });
         setIsAuthenticated(true);
       } else if (error && email) {
@@ -190,7 +192,9 @@ export const useAuth = (): UseAuthReturn => {
       .update({
         name: updates.name,
         avatar: updates.avatar,
-        // Add other fields to DB schema if needed
+        theme: updates.theme,
+        role: updates.role,
+        bio: updates.bio,
       })
       .eq('user_id', user.auth_id);
 

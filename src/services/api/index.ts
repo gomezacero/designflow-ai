@@ -41,9 +41,8 @@ export {
 // Requesters API
 export {
   getRequesters,
-  getRequestersFull,
+  getRequesterNames,
   createRequester,
-  createRequesters,
+  updateRequester,
   deleteRequester,
 } from './requestersApi';
-export type { Requester } from './requestersApi';

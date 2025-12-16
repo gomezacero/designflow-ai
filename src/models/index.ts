@@ -23,6 +23,17 @@ export interface Designer {
   id: string;
   name: string;
   avatar: string;
+  role?: string;
+  bio?: string;
+  email?: string;
+}
+
+export interface Requester {
+  id: string;
+  name: string;
+  avatar?: string;
+  bio?: string;
+  email?: string;
 }
 
 export interface Sprint {
