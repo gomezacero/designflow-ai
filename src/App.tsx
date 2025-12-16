@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DataView } from './components/DataView';
@@ -9,6 +9,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { LoginScreen } from './components/LoginScreen';
 import { Menu } from 'lucide-react';
 import { useAuth, useUIState, useAppState } from './hooks';
+import { useTheme } from './contexts/ThemeContext';
 import { Task } from './models';
 
 function App() {
@@ -55,6 +56,19 @@ function App() {
     handleRestoreTask,
     refreshData,
   } = useAppState();
+
+  const { theme, setTheme } = useTheme();
+
+  // Sync theme from user profile
+  useEffect(() => {
+    if (user?.theme && (user.theme === 'light' || user.theme === 'dark')) {
+      if (theme !== user.theme) {
+        setTheme(user.theme);
+      }
+    }
+  }, [user?.theme, theme]);
+
+  // State for showing loading when refreshing data (e.g., after role change)
 
   // State for showing loading when refreshing data (e.g., after role change)
   // IMPORTANT: Must be before any early returns to comply with Rules of Hooks
