@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { Task, Designer, Status, Requester } from '../models';
 import {
@@ -170,6 +170,21 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
 
         return Array.from(dataMap.values());
     }, [filteredTasks, timeRange, customStart, customEnd]);
+
+    // 🔍 DEBUG: Temporary logging to diagnose chart data issue
+    useEffect(() => {
+        console.log('📊 DEBUG DataView:');
+        console.log('Total tasks:', tasks.length);
+        console.log('Filtered tasks:', filteredTasks.length);
+        console.log('Tasks with completionDate:',
+            filteredTasks.filter(t => t.status === Status.DONE && t.completionDate).length
+        );
+        console.log('Sample completed task:',
+            filteredTasks.find(t => t.status === Status.DONE && t.completionDate)
+        );
+        console.log('Chart data points:', chartData.length);
+        console.log('First 5 chart points:', chartData.slice(0, 5));
+    }, [tasks, filteredTasks, chartData]);
 
     // --- 4. DESIGNER PERFORMANCE METRICS ---
     const designerMetrics = useMemo(() => {
