@@ -65,9 +65,18 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
         }
 
         return tasks.filter(t => {
-            // Use UTC to avoid timezone issues with YYYY-MM-DD format
-            const tDate = new Date(t.requestDate + 'T00:00:00');
-            return tDate >= startLimit && tDate <= endLimit;
+            const requestDate = new Date(t.requestDate + 'T00:00:00');
+            const completionDate = t.completionDate
+                ? new Date(t.completionDate + 'T00:00:00')
+                : null;
+
+            // Include if the task was REQUESTED or COMPLETED within the range
+            const requestInRange = requestDate >= startLimit && requestDate <= endLimit;
+            const completionInRange = completionDate &&
+                completionDate >= startLimit &&
+                completionDate <= endLimit;
+
+            return requestInRange || completionInRange;
         });
     }, [tasks, timeRange, customStart, customEnd]);
 
@@ -140,24 +149,21 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
 
         // Fill with actual data
         filteredTasks.forEach(t => {
-            const key = formatDateKey(t.requestDate);
-            // Only add if it falls within our map (handling edge cases)
-            if (dataMap.has(key)) {
-                const entry = dataMap.get(key)!;
+            // RECEIVED: always use requestDate
+            const requestKey = formatDateKey(t.requestDate);
+            if (dataMap.has(requestKey)) {
+                const entry = dataMap.get(requestKey)!;
                 entry.received += 1;
-                dataMap.set(key, entry);
-            } else if (timeRange === 'all') {
-                // If 'all', we might dynamically add keys, but preserving order is tricky.
-                // For simple implementation, we stick to the pre-gen buckets or extend logic.
-                // Here we let it slide for simplicity.
+                dataMap.set(requestKey, entry);
             }
 
-            if (t.status === Status.DONE) {
-                // Visual choice: Map completion to Request Date (Throughput) or Completion Date (Velocity)
-                // Using Request Date here aligns with "Task Flow" visualization of that specific task batch
-                if (dataMap.has(key)) {
-                    const entry = dataMap.get(key)!;
+            // COMPLETED: use completionDate (when task was actually finished)
+            if (t.status === Status.DONE && t.completionDate) {
+                const completionKey = formatDateKey(t.completionDate);
+                if (dataMap.has(completionKey)) {
+                    const entry = dataMap.get(completionKey)!;
                     entry.completed += 1;
+                    dataMap.set(completionKey, entry);
                 }
             }
         });
