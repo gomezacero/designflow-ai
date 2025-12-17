@@ -55,6 +55,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
 
                 .rich-text-editor-wrapper .ql-editor {
                     min-height: 120px;
+                    max-height: 400px;
+                    overflow-y: auto;
                     padding: 1rem;
                     color: var(--text-primary, #111827);
                 }

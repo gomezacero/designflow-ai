@@ -199,7 +199,7 @@ export const MagicBriefModal: React.FC<MagicBriefModalProps> = ({ isOpen, onClos
                                         value={formData.description || ''}
                                         onChange={(val) => setFormData({ ...formData, description: val })}
                                         placeholder="Describe the deliverables in detail..."
-                                        className="h-32"
+                                        className="min-h-[150px]"
                                     />
                                 </div>
                             </div>
