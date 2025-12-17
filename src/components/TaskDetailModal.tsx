@@ -14,6 +14,8 @@ interface TaskDetailModalProps {
 }
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose, onUpdate, onDelete, designers, requesters }) => {
+    const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+
     if (!task) return null;
 
     return (
@@ -95,9 +97,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                                     <div className="space-y-2">
                                         <span className="text-xs font-medium text-gray-500">External Links</span>
                                         <div className="space-y-2">
-                                            {task.referenceLinks.map((link, i) => (
-                                                <a key={i} href={link} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-sm text-gray-700 hover:text-blue-600 hover:bg-white p-3 bg-white rounded-xl border border-gray-100 shadow-sm transition-all">
-                                                    <div className="p-2 bg-gray-100 rounded-lg text-gray-500">
+                                            {task.referenceLinks?.map((link, i) => (
+                                                <a key={i} href={link} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-sm text-text-primary hover:text-blue-500 hover:bg-bg-surface-hover p-3 bg-bg-canvas rounded-xl border border-border-default shadow-sm transition-all group">
+                                                    <div className="p-2 bg-bg-surface rounded-lg text-text-secondary group-hover:text-blue-500 transition-colors">
                                                         <LinkIcon size={16} />
                                                     </div>
                                                     <span className="truncate flex-1 font-medium">{link}</span>
@@ -112,11 +114,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                                     <div className="space-y-2">
                                         <span className="text-xs font-medium text-gray-500">Images</span>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                            {task.referenceImages.map((img, i) => (
-                                                <div key={i} className="relative group rounded-xl overflow-hidden border border-gray-200 aspect-square bg-white shadow-sm">
+                                            {task.referenceImages?.map((img, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => setSelectedImage(img)}
+                                                    className="relative group rounded-xl overflow-hidden border border-border-default aspect-square bg-bg-canvas shadow-sm hover:ring-2 hover:ring-blue-500 transition-all cursor-zoom-in"
+                                                >
                                                     <img src={img} alt={`Ref ${i} `} className="w-full h-full object-cover" />
                                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
-                                                </div>
+                                                </button>
                                             ))}
                                         </div>
                                     </div>
@@ -235,6 +241,30 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                     </div>
                 </div>
             </div>
-        </div>
+
+
+            {/* Lightbox / Zoom Overlay */}
+            {
+                selectedImage && (
+                    <div
+                        className="fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <button
+                            className="absolute top-4 right-4 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+                            onClick={() => setSelectedImage(null)}
+                        >
+                            <X size={32} />
+                        </button>
+                        <img
+                            src={selectedImage || ''}
+                            alt="Zoomed reference"
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-200"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                )
+            }
+        </div >
     );
 };
