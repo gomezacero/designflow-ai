@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { DesignerRow, DesignerInsert, DesignerUpdate } from '@/lib/database.types';
 import type { Designer } from '@/models';
+import { withRetry } from '@/utils/retryHelper';
 
 /**
  * Maps a database designer row to the app Designer model
@@ -31,17 +32,19 @@ function mapDesignerToInsert(designer: Partial<Designer>): DesignerInsert {
  * @returns Array of designers
  */
 export async function getDesigners(): Promise<Designer[]> {
-  const { data, error } = await supabase
-    .from('designers')
-    .select('*')
-    .order('name', { ascending: true });
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('designers')
+      .select('*')
+      .order('name', { ascending: true });
 
-  if (error) {
-    throw new Error(`Failed to fetch designers: ${error.message}`);
-  }
+    if (error) {
+      throw new Error(`Failed to fetch designers: ${error.message}`);
+    }
 
-  const rows = (data ?? []) as DesignerRow[];
-  return rows.map(mapDesignerRowToDesigner);
+    const rows = (data ?? []) as DesignerRow[];
+    return rows.map(mapDesignerRowToDesigner);
+  });
 }
 
 /**

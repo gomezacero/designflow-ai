@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { TaskRow, TaskInsert, TaskUpdate, DesignerRow } from '@/lib/database.types';
 import type { Task, Designer, TaskType, Priority, Status } from '@/models';
+import { withRetry } from '@/utils/retryHelper';
 
 /** Task with joined designer */
 type TaskWithDesignerJoin = TaskRow & { designer: DesignerRow | null };
@@ -70,43 +71,47 @@ function mapTaskToInsert(task: Partial<Task>): TaskInsert {
  * @returns Array of tasks with designer data
  */
 export async function getTasks(): Promise<Task[]> {
-  const { data, error } = await supabase
-    .from('tasks')
-    .select('*, designer:designers(id, name, avatar, email)') // Only needed fields
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: false })
-    .limit(500); // Safety limit to prevent timeout
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*, designer:designers(id, name, avatar)') // Only essential fields
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: false })
+      .limit(200); // Reduced limit to prevent timeout
 
-  if (error) {
-    throw new Error(`Failed to fetch tasks: ${error.message}`);
-  }
+    if (error) {
+      throw new Error(`Failed to fetch tasks: ${error.message}`);
+    }
 
-  const rows = (data ?? []) as TaskWithDesignerJoin[];
-  return rows.map(mapTaskRowToTask);
+    const rows = (data ?? []) as TaskWithDesignerJoin[];
+    return rows.map(mapTaskRowToTask);
+  });
 }
 
 /**
  * Fetches deleted tasks from the database (last 90 days only for performance)
  */
 export async function getDeletedTasks(): Promise<Task[]> {
-  // Only fetch deleted tasks from the last 90 days to prevent timeout
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+  return withRetry(async () => {
+    // Only fetch deleted tasks from the last 90 days to prevent timeout
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
-  const { data, error } = await supabase
-    .from('tasks')
-    .select('*, designer:designers(id, name, avatar, email)')
-    .eq('is_deleted', true)
-    .gte('deleted_at', ninetyDaysAgo.toISOString())
-    .order('deleted_at', { ascending: false })
-    .limit(100); // Limit deleted tasks for performance
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*, designer:designers(id, name, avatar)')
+      .eq('is_deleted', true)
+      .gte('deleted_at', ninetyDaysAgo.toISOString())
+      .order('deleted_at', { ascending: false })
+      .limit(50); // Reduced limit for deleted tasks
 
-  if (error) {
-    throw new Error(`Failed to fetch deleted tasks: ${error.message}`);
-  }
+    if (error) {
+      throw new Error(`Failed to fetch deleted tasks: ${error.message}`);
+    }
 
-  const rows = (data ?? []) as TaskWithDesignerJoin[];
-  return rows.map(mapTaskRowToTask);
+    const rows = (data ?? []) as TaskWithDesignerJoin[];
+    return rows.map(mapTaskRowToTask);
+  });
 }
 
 /**

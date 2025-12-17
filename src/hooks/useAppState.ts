@@ -89,7 +89,9 @@ export const useAppState = (): UseAppStateReturn => {
   );
 
   /**
-   * Fetches all data from Supabase
+   * Fetches all data from Supabase in a staged approach to avoid rate limits
+   * Phase 1: Critical data (tasks, designers, sprints) - needed for dashboard
+   * Phase 2: Secondary data (deleted items, requesters) - can load after
    */
   const fetchAllData = useCallback(async () => {
     if (!useSupabase) return;
@@ -97,26 +99,58 @@ export const useAppState = (): UseAppStateReturn => {
     setIsLoading(true);
     setError(null);
 
+    let criticalDataLoaded = false;
+
     try {
-      const [tasksData, deletedTasksData, designersData, requestersData, sprintsData, deletedSprintsData] = await Promise.all([
+      // Phase 1: Fetch critical data first (required for dashboard)
+      // Using smaller parallel batches to avoid rate limits
+      console.log('[Data] Phase 1: Fetching critical data...');
+
+      const [tasksData, designersData, sprintsData] = await Promise.all([
         api.getTasks(),
-        api.getDeletedTasks(),
         api.getDesigners(),
-        api.getRequesters(),
         api.getSprints(),
+      ]);
+
+      // Update UI immediately with critical data
+      setTasks(tasksData);
+      setDesigners(designersData);
+      setSprints(sprintsData);
+      criticalDataLoaded = true;
+
+      console.log(`[Data] Phase 1 complete: ${tasksData.length} tasks, ${designersData.length} designers, ${sprintsData.length} sprints`);
+
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to fetch critical data';
+      setError(message);
+      console.error('[Data] Phase 1 error:', err);
+      setIsLoading(false);
+      return; // Don't proceed to phase 2 if critical data failed
+    }
+
+    // Phase 2: Fetch secondary data (non-blocking for main UI)
+    try {
+      // Small delay to space out requests
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      console.log('[Data] Phase 2: Fetching secondary data...');
+
+      const [deletedTasksData, requestersData, deletedSprintsData] = await Promise.all([
+        api.getDeletedTasks(),
+        api.getRequesters(),
         api.getDeletedSprints(),
       ]);
 
-      setTasks(tasksData);
       setDeletedTasks(deletedTasksData);
-      setDesigners(designersData);
       setRequesters(requestersData);
-      setSprints(sprintsData);
       setDeletedSprints(deletedSprintsData);
+
+      console.log('[Data] Phase 2 complete');
+
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch data';
-      setError(message);
-      console.error('Error fetching data:', err);
+      // Phase 2 errors are non-critical, just log them
+      console.warn('[Data] Phase 2 error (non-critical):', err);
+      // Don't set error state since critical data loaded successfully
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { SprintRow, SprintInsert, SprintUpdate } from '@/lib/database.types';
 import type { Sprint } from '@/models';
+import { withRetry } from '@/utils/retryHelper';
 
 /**
  * Maps a database sprint row to the app Sprint model
@@ -33,36 +34,40 @@ function mapSprintToInsert(sprint: Partial<Sprint>): SprintInsert {
  * @returns Array of sprints
  */
 export async function getSprints(): Promise<Sprint[]> {
-  const { data, error } = await supabase
-    .from('sprints')
-    .select('*')
-    .eq('is_deleted', false)
-    .order('start_date', { ascending: false });
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('sprints')
+      .select('*')
+      .eq('is_deleted', false)
+      .order('start_date', { ascending: false });
 
-  if (error) {
-    throw new Error(`Failed to fetch sprints: ${error.message}`);
-  }
+    if (error) {
+      throw new Error(`Failed to fetch sprints: ${error.message}`);
+    }
 
-  const rows = (data ?? []) as SprintRow[];
-  return rows.map(mapSprintRowToSprint);
+    const rows = (data ?? []) as SprintRow[];
+    return rows.map(mapSprintRowToSprint);
+  });
 }
 
 /**
  * Fetches all deleted sprints from the database
  */
 export async function getDeletedSprints(): Promise<Sprint[]> {
-  const { data, error } = await supabase
-    .from('sprints')
-    .select('*')
-    .eq('is_deleted', true)
-    .order('deleted_at', { ascending: false });
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('sprints')
+      .select('*')
+      .eq('is_deleted', true)
+      .order('deleted_at', { ascending: false });
 
-  if (error) {
-    throw new Error(`Failed to fetch deleted sprints: ${error.message}`);
-  }
+    if (error) {
+      throw new Error(`Failed to fetch deleted sprints: ${error.message}`);
+    }
 
-  const rows = (data ?? []) as SprintRow[];
-  return rows.map(mapSprintRowToSprint);
+    const rows = (data ?? []) as SprintRow[];
+    return rows.map(mapSprintRowToSprint);
+  });
 }
 
 /**

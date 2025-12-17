@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import type { RequesterRow, RequesterInsert, RequesterUpdate } from '@/lib/database.types';
 import type { Requester } from '@/models';
+import { withRetry } from '@/utils/retryHelper';
 
 /**
  * Maps a database requester row to the app Requester model
@@ -38,17 +39,19 @@ export async function getRequesterNames(): Promise<string[]> {
  * @returns Array of requester objects
  */
 export async function getRequesters(): Promise<Requester[]> {
-  const { data, error } = await supabase
-    .from('requesters')
-    .select('*')
-    .order('name', { ascending: true });
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('requesters')
+      .select('*')
+      .order('name', { ascending: true });
 
-  if (error) {
-    throw new Error(`Failed to fetch requesters: ${error.message}`);
-  }
+    if (error) {
+      throw new Error(`Failed to fetch requesters: ${error.message}`);
+    }
 
-  const rows = (data ?? []) as RequesterRow[];
-  return rows.map(mapRequesterRowToRequester);
+    const rows = (data ?? []) as RequesterRow[];
+    return rows.map(mapRequesterRowToRequester);
+  });
 }
 
 /**
