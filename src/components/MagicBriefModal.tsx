@@ -96,8 +96,16 @@ export const MagicBriefModal: React.FC<MagicBriefModalProps> = ({ isOpen, onClos
 
     const handleSave = () => {
         const designer = designers.find(d => d.id === selectedDesignerId);
+
+        // Auto-add pending link if user forgot to click +
+        let finalLinks = [...(formData.referenceLinks || [])];
+        if (newLink && newLink.trim().length > 0) {
+            finalLinks.push(newLink.trim());
+        }
+
         onConfirm({
             ...formData,
+            referenceLinks: finalLinks,
             designer: designer
         });
     };
