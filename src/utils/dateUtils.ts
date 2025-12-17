@@ -23,11 +23,23 @@ export const getDaysInPast = (days: number): Date => {
 };
 
 /**
- * Formats a date string to M/D format for chart labels
+ * Formats an ISO date string (YYYY-MM-DD) to display format (M/D)
+ * Uses string parsing to avoid timezone conversion issues
+ * @param isoDate - Date in YYYY-MM-DD format or full ISO timestamp
+ * @returns Formatted date as M/D (e.g., "12/15")
  */
-export const formatDateKey = (dateStr: string): string => {
-  const d = new Date(dateStr);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+export const formatDateKey = (isoDate: string): string => {
+  // Extract date portion only (handles both YYYY-MM-DD and full ISO timestamps)
+  const dateOnly = isoDate.split('T')[0] ?? isoDate; // "2025-12-15"
+  const parts = dateOnly.split('-');
+  const month = parts[1] ?? '1';
+  const day = parts[2] ?? '1';
+
+  // Parse as integers to remove leading zeros
+  const monthNum = parseInt(month, 10); // 12
+  const dayNum = parseInt(day, 10); // 15
+
+  return `${monthNum}/${dayNum}`; // "12/15"
 };
 
 /**
