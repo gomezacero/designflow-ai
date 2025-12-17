@@ -66,15 +66,16 @@ function mapTaskToInsert(task: Partial<Task>): TaskInsert {
 }
 
 /**
- * Fetches all tasks from the database
+ * Fetches all active tasks from the database
  * @returns Array of tasks with designer data
  */
 export async function getTasks(): Promise<Task[]> {
   const { data, error } = await supabase
     .from('tasks')
-    .select('*, designer:designers(*)')
+    .select('*, designer:designers(id, name, avatar, email)') // Only needed fields
     .eq('is_deleted', false)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(500); // Safety limit to prevent timeout
 
   if (error) {
     throw new Error(`Failed to fetch tasks: ${error.message}`);
@@ -85,14 +86,20 @@ export async function getTasks(): Promise<Task[]> {
 }
 
 /**
- * Fetches all deleted tasks from the database
+ * Fetches deleted tasks from the database (last 90 days only for performance)
  */
 export async function getDeletedTasks(): Promise<Task[]> {
+  // Only fetch deleted tasks from the last 90 days to prevent timeout
+  const ninetyDaysAgo = new Date();
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
   const { data, error } = await supabase
     .from('tasks')
-    .select('*, designer:designers(*)')
+    .select('*, designer:designers(id, name, avatar, email)')
     .eq('is_deleted', true)
-    .order('deleted_at', { ascending: false });
+    .gte('deleted_at', ninetyDaysAgo.toISOString())
+    .order('deleted_at', { ascending: false })
+    .limit(100); // Limit deleted tasks for performance
 
   if (error) {
     throw new Error(`Failed to fetch deleted tasks: ${error.message}`);

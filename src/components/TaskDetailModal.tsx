@@ -2,6 +2,7 @@
 import React from 'react';
 import { X, Calendar, User, Link as LinkIcon, Clock, Send, ChevronDown } from 'lucide-react';
 import { Task, Priority, Status, Designer, Requester } from '../models';
+import { RichTextEditor } from './RichTextEditor';
 
 interface TaskDetailModalProps {
     task: Task | null;
@@ -45,11 +46,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                         <div className="md:col-span-8 space-y-8">
                             <div className="bg-bg-surface p-6 rounded-2xl shadow-sm border border-border-default space-y-3">
                                 <h3 className="text-sm font-bold text-text-primary uppercase tracking-wide">Brief / Description</h3>
-                                <textarea
+                                <RichTextEditor
                                     value={task.description || ''}
-                                    onChange={(e) => onUpdate({ description: e.target.value })}
+                                    onChange={(val) => onUpdate({ description: val })}
                                     placeholder="Add a description for this task..."
-                                    className="w-full bg-bg-canvas border border-border-default rounded-xl px-4 py-3 text-sm text-text-secondary leading-relaxed focus:bg-bg-surface focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none transition-all resize-none min-h-[150px]"
+                                    className="min-h-[150px]"
                                 />
                             </div>
 
@@ -113,7 +114,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                             {task.referenceImages.map((img, i) => (
                                                 <div key={i} className="relative group rounded-xl overflow-hidden border border-gray-200 aspect-square bg-white shadow-sm">
-                                                    <img src={img} alt={`Ref ${i}`} className="w-full h-full object-cover" />
+                                                    <img src={img} alt={`Ref ${i} `} className="w-full h-full object-cover" />
                                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
                                                 </div>
                                             ))}
@@ -135,8 +136,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ task, onClose,
                                     ${task.status === Status.DONE ? 'border-green-100 bg-green-50 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-300' :
                                                 task.status === Status.IN_PROGRESS ? 'border-blue-100 bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:border-blue-800 dark:text-blue-300' :
                                                     task.status === Status.REVIEW ? 'border-purple-100 bg-purple-50 text-purple-700 dark:bg-purple-900/40 dark:border-purple-800 dark:text-purple-300' :
-                                                        'border-gray-100 bg-gray-50 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'}
-                                `}
+                                                        'border-gray-100 bg-gray-50 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
+                                            }
+`}
                                         value={task.status}
                                         onChange={(e) => onUpdate({ status: e.target.value as Status })}
                                     >
