@@ -165,7 +165,6 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
         return Array.from(dataMap.values());
     }, [filteredTasks, timeRange, customStart, customEnd]);
 
-
     // --- 4. DESIGNER PERFORMANCE METRICS ---
     const designerMetrics = useMemo(() => {
         return designers.map(d => {
@@ -205,7 +204,10 @@ export const DataView: React.FC<DataViewProps> = ({ tasks, designers, requesters
 
 
     // --- RENDER HELPERS ---
-    const maxChartValue = Math.max(...chartData.map(d => Math.max(d.received, d.completed)), 5);
+    // Calculate max value for chart scaling (with minimum of 1 to avoid division by zero)
+    const maxChartValue = chartData.length > 0
+        ? Math.max(...chartData.map(d => Math.max(d.received, d.completed)), 1)
+        : 1;
 
     return (
         <div className="p-4 md:p-8 space-y-8 w-full h-full overflow-y-auto custom-scrollbar bg-bg-canvas">
