@@ -202,14 +202,16 @@ function App() {
         )}
       </main>
 
-      <MagicBriefModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onConfirm={onCreateTask}
-        designers={designers}
-        requesters={requesters}
-        activeSprint={activeSprint}
-      />
+      {isModalOpen && (
+        <MagicBriefModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onConfirm={onCreateTask}
+          designers={designers}
+          requesters={requesters}
+          activeSprint={activeSprint}
+        />
+      )}
 
       <SettingsModal
         isOpen={isSettingsOpen}
