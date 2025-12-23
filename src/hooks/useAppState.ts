@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { Task, Status, Priority, TaskType, Designer, Sprint, Requester } from '../models';
 import {
@@ -156,34 +156,39 @@ export const useAppState = (): UseAppStateReturn => {
     }
   }, [useSupabase]);
 
+  // Ref to prevent double-fetch in React StrictMode
+  const hasFetchedRef = useRef(false);
+
   /**
    * Initial data fetch on mount AND Realtime Subscription
+   * Only runs ONCE on mount (protected by ref)
    */
   useEffect(() => {
+    // Prevent double-fetch in StrictMode or re-renders
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     fetchAllData();
 
     if (!useSupabase) return;
 
-    // REALTIME SUBSCRIPTION
+    // REALTIME SUBSCRIPTION (only for designer updates - minimal overhead)
     const channel = supabase
       .channel('app-changes')
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'designers' },
         (payload) => {
-          const updatedDesigner = payload.new as any; // Cast generic payload
+          const updatedDesigner = payload.new as any;
 
-          // Map DB columns to App Model (snake_case to camelCase)
           const designerModel: Designer = {
             id: updatedDesigner.id,
             name: updatedDesigner.name,
             avatar: updatedDesigner.avatar || ''
           };
 
-          // 1. Update Designers List
+          // Update local state (no DB call needed)
           setDesigners(prev => prev.map(d => d.id === designerModel.id ? designerModel : d));
-
-          // 2. Update Tasks (Live update of avatar in cards)
           setTasks(prev => prev.map(t => {
             if (t.designer?.id === designerModel.id) {
               return { ...t, designer: designerModel };
@@ -197,7 +202,8 @@ export const useAppState = (): UseAppStateReturn => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchAllData, useSupabase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   /**
    * Creates a new task

@@ -78,34 +78,49 @@ export const useAuth = (): UseAuthReturn => {
   };
 
   useEffect(() => {
-    // 1. Check active session
+    let isMounted = true;
+    let currentAuthId: string | null = null;
+
+    // 1. Check active session (only once on mount)
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
+
       if (session?.user) {
+        currentAuthId = session.user.id;
         fetchProfile(session.user.id, session.user.email);
       } else {
         setIsLoading(false);
       }
     });
 
-    // 2. Listen for changes
+    // 2. Listen for changes (with deduplication to prevent excessive calls)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+
       if (event === 'PASSWORD_RECOVERY') {
         setIsPasswordRecovery(true);
       }
 
       if (session?.user) {
-        // Only fetch if we don't have the user or it's a different user
-        fetchProfile(session.user.id, session.user.email);
+        // Only fetch if it's a NEW user (prevents duplicate calls on token refresh)
+        if (currentAuthId !== session.user.id) {
+          currentAuthId = session.user.id;
+          fetchProfile(session.user.id, session.user.email);
+        }
       } else {
+        currentAuthId = null;
         setUser(null);
         setIsAuthenticated(false);
         setIsLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

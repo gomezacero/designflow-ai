@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DataView } from './components/DataView';
@@ -54,7 +54,6 @@ function App() {
     handleDeleteRequester,
     handleDeleteTask,
     handleRestoreTask,
-    refreshData,
   } = useAppState();
 
   const { theme, setTheme } = useTheme();
@@ -67,12 +66,6 @@ function App() {
       }
     }
   }, [user?.theme, theme]);
-
-  // State for showing loading when refreshing data (e.g., after role change)
-
-  // State for showing loading when refreshing data (e.g., after role change)
-  // IMPORTANT: Must be before any early returns to comply with Rules of Hooks
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Wrappers to inject user ID
   const onDeleteSprint = (id: string) => {
@@ -116,16 +109,6 @@ function App() {
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
             <p className="text-text-secondary text-sm font-medium">Loading your workspace...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Refresh Overlay - Shows when updating profile/refreshing data */}
-      {isRefreshing && (
-        <div className="fixed inset-0 z-[90] bg-bg-canvas/80 backdrop-blur-sm flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4 bg-bg-surface p-8 rounded-2xl shadow-lg border border-border-default">
-            <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-            <p className="text-text-primary text-sm font-medium">Updating...</p>
           </div>
         </div>
       )}
@@ -181,15 +164,9 @@ function App() {
           <ProfileView
             user={user}
             onUpdateProfile={async (updates) => {
-              if (updates.role) {
-                setIsRefreshing(true);
-              }
+              // Optimistic update - no need to refresh all data
+              // The realtime subscription handles designer updates
               await updateProfile(updates);
-              // Refresh designers list to reflect role changes immediately
-              if (updates.role) {
-                await refreshData();
-                setIsRefreshing(false);
-              }
             }}
           />
         )}
